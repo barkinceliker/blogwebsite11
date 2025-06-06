@@ -2,7 +2,7 @@
 'use server';
 
 import { cookies } from 'next/headers';
-import { ADMIN_EMAIL, ADMIN_PASSWORD, AUTH_COOKIE_NAME, AUTHOR_NAME } from './constants';
+import { AUTH_COOKIE_NAME, AUTHOR_NAME } from './constants';
 import type { UserSession } from '@/types';
 import { firestore } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
@@ -25,47 +25,54 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
     
     const querySnapshot = await getDocs(q);
 
-    let sessionData: UserSession | null = null;
-
     if (querySnapshot.empty) {
+      console.log(`[Auth] No admin found with email: ${email} in Firestore.`);
       return { success: false, error: 'Invalid email or password. No admin found with this email in Firestore.' };
     } else {
       const adminDoc = querySnapshot.docs[0];
       const adminData = adminDoc.data();
 
-      if (!adminData.password) {
-        console.error(`[Auth] Admin document for ${email} is missing 'password' field in Firestore.`);
-        return { success: false, error: 'Login failed: The admin account exists, but the password field is missing or misconfigured in Firestore. Please ensure the document in the "admins" collection has a field named "password" (all lowercase) with the correct string value.' };
+      if (!adminData.hasOwnProperty('password')) {
+        console.error(`[Auth] Admin document for ${email} is missing the 'password' field entirely in Firestore.`);
+        return { success: false, error: `Login failed: The 'password' field is completely missing from the admin document for ${email} in Firestore. Please ensure the field name is 'password' (all lowercase).` };
       }
       
-      const firestorePassword = adminData.password as string;
+      if (adminData.password === null) {
+        console.error(`[Auth] Admin document for ${email} has a 'password' field that is null.`);
+        return { success: false, error: `Login failed: The 'password' field for ${email} in Firestore is null. It must be a text value.` };
+      }
+
+      if (typeof adminData.password !== 'string') {
+        console.error(`[Auth] Admin document for ${email} has a 'password' field, but it's not a string (type: ${typeof adminData.password}). Value: ${adminData.password}`);
+        return { success: false, error: `Login failed: The 'password' field for ${email} in Firestore is not a string. It must be a text value. Current type: ${typeof adminData.password}.` };
+      }
+
+      if (adminData.password === '') {
+        console.error(`[Auth] Admin document for ${email} has an empty 'password' field in Firestore.`);
+        return { success: false, error: `Login failed: The 'password' field for ${email} in Firestore is an empty string. It cannot be blank.` };
+      }
+      
+      const firestorePassword = adminData.password; // Now known to be a non-empty string
       if (firestorePassword === password) {
-        sessionData = {
+        const sessionData: UserSession = {
           email,
           name: adminData.name || AUTHOR_NAME, 
           isAuthenticated: true,
           loginTimestamp: Date.now(),
         };
+        cookieStore.set(AUTH_COOKIE_NAME, JSON.stringify(sessionData), {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          maxAge: 60 * 60 * 24, // 1 day
+          path: '/',
+          sameSite: 'lax',
+        });
+        return { success: true, session: sessionData };
       } else {
+        console.log(`[Auth] Password mismatch for email: ${email}. Firestore password hash (or plain if stored) does not match provided password.`);
         return { success: false, error: 'Invalid email or password. Password in Firestore does not match.' };
       }
     }
-
-    if (sessionData) {
-      cookieStore.set(AUTH_COOKIE_NAME, JSON.stringify(sessionData), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 60 * 60 * 24, // 1 day
-        path: '/',
-        sameSite: 'lax',
-      });
-      return { success: true, session: sessionData };
-    }
-    
-    // This part should ideally not be reached if logic is exhaustive.
-    // Adding a fallback error for unexpected scenarios.
-    return { success: false, error: 'An unknown error occurred during login processing.' };
-
   } catch (error: any) {
     console.error('[Auth] Error during Firestore admin login:', error);
     let errorMessage = 'An unexpected error occurred during login.';
@@ -95,8 +102,10 @@ export async function getSession(): Promise<UserSession | null> {
     try {
       const sessionData = JSON.parse(sessionCookie.value) as UserSession;
       
+      // Check for session expiry (e.g., 24 hours)
       if (sessionData.isAuthenticated && sessionData.loginTimestamp && (Date.now() - sessionData.loginTimestamp > (60 * 60 * 24 * 1000))) {
         console.log(`[Auth] Session for ${sessionData.email} has expired.`);
+        await logout(); // Explicitly log out an expired session
         return null; 
       }
       
