@@ -19,7 +19,7 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
   }
 
   try {
-    const cookieStore = await cookies(); // Await cookies()
+    const cookieStore = await cookies();
     const adminsRef = collection(firestore, 'admins');
     const q = query(adminsRef, where('email', '==', email));
     
@@ -31,7 +31,6 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
       return { success: false, error: 'Invalid email or password' };
     }
 
-    // Assuming email is unique, take the first document.
     const adminDoc = querySnapshot.docs[0];
     const adminData = adminDoc.data();
     console.log(`[Auth] Admin data found in Firestore:`, adminData);
@@ -58,18 +57,28 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
     }
   } catch (error) {
     console.error('[Auth] Error during Firestore admin login:', error);
-    return { success: false, error: 'An unexpected error occurred during login.' };
+    let errorMessage = 'An unexpected error occurred during login.';
+    if (error instanceof Error) {
+        const errorCode = (error as any).code; 
+        if (errorCode === 'permission-denied') {
+            console.error('[Auth] Firestore permission denied. Check your security rules.');
+            errorMessage = 'Firestore permission denied. Please check security rules.';
+        } else if (errorCode) {
+            errorMessage = `An unexpected error occurred: ${errorCode}. Check server logs.`;
+        }
+    }
+    return { success: false, error: errorMessage };
   }
 }
 
 export async function logout(): Promise<void> {
-  const cookieStore = await cookies(); // Await cookies()
+  const cookieStore = await cookies();
   cookieStore.delete(AUTH_COOKIE_NAME);
   console.log('[Auth] User logged out');
 }
 
 export async function getSession(): Promise<UserSession | null> {
-  const cookieStore = await cookies(); // Await cookies()
+  const cookieStore = await cookies();
   const sessionCookie = cookieStore.get(AUTH_COOKIE_NAME);
   if (sessionCookie?.value) {
     try {
