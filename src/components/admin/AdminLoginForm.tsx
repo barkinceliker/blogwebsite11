@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -26,7 +27,7 @@ interface AdminLoginFormProps {
 
 export default function AdminLoginForm({ currentSession }: AdminLoginFormProps) {
   const { toast } = useToast();
-  const router = useRouter();
+  const router = useRouter(); // Keep for other potential uses, though redirect will be window.location
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -45,10 +46,10 @@ export default function AdminLoginForm({ currentSession }: AdminLoginFormProps) 
     if (result.success && result.name) {
       toast({
         title: 'Login Successful!',
-        description: `Welcome, ${result.name}!`,
+        description: `Welcome, ${result.name}! Redirecting to dashboard...`,
       });
-      // Use router.replace to ensure a full navigation and layout re-evaluation
-      router.replace('/admin/dashboard');
+      // Force a full page reload to ensure the new cookie is sent with the request for the dashboard
+      window.location.assign('/admin/dashboard');
     } else {
       toast({
         title: 'Login Failed',
@@ -60,7 +61,6 @@ export default function AdminLoginForm({ currentSession }: AdminLoginFormProps) 
 
   const onLogout = async () => {
     await handleLogout();
-    // handleLogout server action already redirects.
     // Forcing a full page reload for logout ensures clean state on the /admin page.
     window.location.href = '/admin';
   };

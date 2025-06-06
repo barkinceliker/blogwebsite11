@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from 'next';
 import { getSession } from '@/lib/auth';
 import type { UserSession } from '@/types';
-import { redirect } from 'next/navigation';
+// import { redirect } from 'next/navigation'; // Middleware handles redirection
 
 export const metadata: Metadata = {
   title: 'Admin Panel - Personal Hub',
@@ -18,21 +18,12 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  console.log('[AdminLayout] Fetching session for the layout...');
   const session: UserSession | null = await getSession();
+  console.log('[AdminLayout] Session fetched for layout:', session ? { isAuthenticated: session.isAuthenticated, name: session.name, loginTimestamp: session.loginTimestamp } : null);
 
-  // Although middleware should handle redirection for /admin/dashboard/*,
-  // an additional check here ensures that if middleware somehow fails or is bypassed
-  // for a direct layout render, we still try to protect.
-  // However, for pages like /admin itself, this check might be too aggressive
-  // if not handled carefully with pathname. Middleware is the primary guard.
-  // For now, we rely on middleware for dashboard protection.
-  // The session is primarily fetched here to pass to AdminSidebar.
-
-  // Example of a more direct check if not relying solely on middleware for a specific page:
-  // if (pathname.startsWith('/admin/dashboard') && (!session || !session.isAuthenticated)) {
-  //   redirect('/admin');
-  // }
-
+  // Middleware should handle redirection for /admin/dashboard/* if unauthenticated.
+  // This layout primarily uses the session to pass to the AdminSidebar.
 
   return (
     <div className="flex min-h-screen bg-muted/40">
