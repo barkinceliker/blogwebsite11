@@ -1,0 +1,51 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Admins collection:
+    // - Allow unauthenticated reads for email lookup during server-side login.
+    // - Disallow client-side writes. Manage admins through Firebase Console.
+    match /admins/{adminId} {
+      allow read: if true; // Server action reads this to verify credentials
+      allow write: if false; // Prevent client-side modification
+    }
+
+    // Publicly readable collections (assuming these are or will be in Firestore)
+    match /projects/{projectId} {
+      allow read: if true;
+      allow write: if false; // Writes handled by server actions
+    }
+
+    match /blogPosts/{postId} {
+      allow read: if true;
+      allow write: if false; // Writes handled by server actions
+    }
+
+    match /skills/{skillId} {
+      allow read: if true;
+      allow write: if false; // Writes handled by server actions
+    }
+
+    // Example for "About Me" content if stored in Firestore
+    // match /siteContent/aboutMe {
+    //   allow read: if true;
+    //   allow write: if false; // Writes handled by server actions
+    // }
+
+    // Contact Messages:
+    // - Client-side reads should be disallowed. Admin fetches via server action.
+    // - Client-side writes (form submissions) are handled by server actions.
+    match /contactMessages/{messageId} {
+      allow read: if false; // Server actions will fetch for admin panel
+      allow write: if false; // Server actions handle creation
+    }
+
+    // Default deny for any other paths not explicitly matched.
+    // It's good practice to end with a catch-all deny rule.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
