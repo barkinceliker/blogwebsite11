@@ -56,15 +56,12 @@ export default function Navbar() {
     } else if (linkHref.startsWith("/#")) { // Section link like /#about
       return pathname === "/" && currentHash === linkHref.substring(1);
     } else { // Page link like /admin
-      // A page link is active if the pathname matches and there's no hash,
-      // or if the pathname matches and the hash points to the top of that page (e.g. /about#about)
       return pathname === linkHref && (currentHash === "" || currentHash === `#${linkHref.split('/').pop()}`);
     }
   };
   
   if (!mounted) {
     // Render a simplified version or null during SSR to avoid hydration mismatch
-    // For example, render links without active state or a placeholder
     return (
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
         <div className="container flex h-16 items-center justify-between">
@@ -141,7 +138,7 @@ export default function Navbar() {
                             className={`text-lg font-medium transition-colors hover:text-primary ${
                               isActive ? 'text-primary font-semibold' : 'text-foreground/80'
                             }`}
-                            onClick={() => setIsMobileMenuOpen(false)}
+                            // onClick={() => setIsMobileMenuOpen(false)} // Removed this line
                           >
                             {link.label}
                           </Link>
