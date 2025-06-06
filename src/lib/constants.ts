@@ -8,11 +8,11 @@ export const SITE_DESCRIPTION = "A showcase of projects, skills, and thoughts by
 export const AUTHOR_NAME = "Barkın Çeliker";
 
 export const NAV_LINKS = [
-  { href: "/", label: "Home" },
+  { href: "/", label: "Ana Sayfa" },
   { href: "/#about", label: "Hakkımda" },
-  { href: "/#projects", label: "Projeler" },
-  { href: "/#skills", label: "Beceriler" },
-  { href: "/#blog", label: "Blog" },
+  { href: "/#projects", label: "Projelerim" },
+  { href: "/#skills", label: "Yeteneklerim" },
+  { href: "/#blog", label: "Blog Yazılarım" },
   { href: "/#contact", label: "İletişim" },
   { href: "/admin", label: "Admin" },
 ];
@@ -23,7 +23,10 @@ export const ADMIN_NAV_LINKS = [
   { href: "/admin/dashboard/projects", label: "Projects" },
   { href: "/admin/dashboard/blog", label: "Blog Posts" },
   { href: "/admin/dashboard/contact", label: "Messages" },
+  // { href: "/admin/dashboard/skills", label: "Skills" }, // Optional
+  { href: "/admin/dashboard/settings", label: "Settings"},
 ];
+
 
 // Sample data (replace with actual data source or API calls)
 export const SKILLS_DATA = [
