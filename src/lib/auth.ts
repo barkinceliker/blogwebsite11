@@ -15,7 +15,10 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
   const email = emailForm ? emailForm.trim() : '';
   const password = passwordForm ? passwordForm.trim() : '';
 
-  console.log(`[Auth] Attempting login for email: "${email}" (original from form: "${emailForm}")`);
+  console.log(`[Auth] Attempting login for email: "${emailForm}" (original from form)`);
+  console.log(`[Auth] Trimmed email for query: "${email}"`);
+  console.log(`[Auth] Trimmed password from form: "${password}"`);
+
 
   if (!email || !password) {
     console.log('[Auth] Email or password not provided or empty after trim.');
@@ -46,17 +49,16 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
       return { success: false, error: 'Admin configuration error. Password missing.' };
     }
     
-    // The password from Firestore should not need trimming if stored correctly
     const firestorePassword = adminData.password as string;
+    console.log(`[Auth] Retrieved Firestore password: "${firestorePassword}" (Length: ${firestorePassword?.length})`);
+    console.log(`[Auth] Provided form password (trimmed): "${password}" (Length: ${password?.length})`);
+    console.log(`[Auth] Comparing values for strict equality. Firestore (type: ${typeof firestorePassword}): ${JSON.stringify(firestorePassword)}, Form (type: ${typeof password}): ${JSON.stringify(password)}`);
 
-    console.log(`[Auth] Firestore password for "${email}": "${firestorePassword}" (Type: ${typeof firestorePassword})`);
-    console.log(`[Auth] Provided (trimmed) password: "${password}" (Type: ${typeof password})`);
 
-    // Compare the trimmed password from the form with the password from Firestore
     if (firestorePassword === password) {
       console.log(`[Auth] Password match for email: "${email}". Login successful.`);
       const sessionData: UserSession = {
-        email, // Use trimmed email for session
+        email,
         name: adminData.name || AUTHOR_NAME, 
         isAuthenticated: true,
         loginTimestamp: Date.now(),
@@ -70,7 +72,8 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
       });
       return { success: true };
     } else {
-      console.log(`[Auth] Password mismatch for email: "${email}". Firestore password: "${firestorePassword}", Provided (trimmed) password: "${password}"`);
+      console.log(`[Auth] Password mismatch for email: "${email}".`);
+      console.log(`[Auth] Detailed mismatch: Firestore ("${firestorePassword}") vs Form ("${password}")`);
       return { success: false, error: 'Invalid email or password' };
     }
   } catch (error: any) {
@@ -78,8 +81,8 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
     let errorMessage = 'An unexpected error occurred during login.';
     if (error.code) { 
         if (error.code === 'permission-denied' || error.code === 'PERMISSION_DENIED') {
-            console.error('[Auth] Firestore permission denied. Check your security rules.');
-            errorMessage = 'Firestore permission denied. Please check security rules or Firestore setup.';
+            console.error('[Auth] Firestore permission denied. Check your security rules and that Firestore is correctly initialized for the App Hosting environment.');
+            errorMessage = 'Firestore permission denied. Please check security rules or Firestore setup for the server environment.';
         } else {
             errorMessage = `An unexpected Firestore error occurred: ${error.code}. Message: ${error.message}. Check server logs.`;
         }
