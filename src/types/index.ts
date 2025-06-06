@@ -51,10 +51,3 @@ export interface AboutMeContent {
   mission: string;
   skillsSummary: string;
 }
-
-export interface CvInfo {
-    filename: string | null;
-    exists: boolean;
-    downloadUrl: string | null;
-    error?: string;
-}

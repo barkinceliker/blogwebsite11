@@ -24,7 +24,6 @@ export const ADMIN_NAV_LINKS = [
   { href: "/admin/dashboard/blog", label: "Blog Posts" },
   { href: "/admin/dashboard/skills", label: "Skills" },
   { href: "/admin/dashboard/contact", label: "Messages" },
-  { href: "/admin/dashboard/cv", label: "CV Management" },
   { href: "/admin/dashboard/settings", label: "Settings"},
 ];
 
@@ -34,5 +33,3 @@ export const DEFAULT_ABOUT_ME_CONTENT = {
   mission: "My goal is to transform raw data into actionable insights, helping organizations understand their performance, identify opportunities, and make informed strategic choices. I am constantly exploring new tools and techniques in the data science field to enhance my analytical capabilities.",
   skillsSummary: "I have hands-on experience with Python for data manipulation, SQL for database querying, and tools like Tableau for data visualization. I am eager to apply my skills in a professional setting and contribute to data-driven projects."
 };
-
-export const CV_FILENAME = "Barkin_Celiker_CV.pdf";

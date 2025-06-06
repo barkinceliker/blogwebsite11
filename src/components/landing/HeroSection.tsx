@@ -1,20 +1,15 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Download } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
-// getAboutMeContent and getCvInfo will be passed as props from page.tsx
-import type { AboutMeContent, CvInfo } from '@/types';
+import type { AboutMeContent } from '@/types';
 
 interface HeroSectionProps {
   aboutMe: AboutMeContent;
-  cvInfo: CvInfo;
 }
 
-export default function HeroSection({ aboutMe, cvInfo }: HeroSectionProps) {
-  // const aboutMeData: AboutMeContent = await getAboutMeContent();
-  // const cvInfo: CvInfo = await getCvInfo();
-
+export default function HeroSection({ aboutMe }: HeroSectionProps) {
   return (
     <section className="bg-gradient-to-br from-background to-secondary py-20 md:py-32">
       <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
@@ -31,13 +26,6 @@ export default function HeroSection({ aboutMe, cvInfo }: HeroSectionProps) {
                 Projelerimi Görüntüle <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-            {cvInfo.exists && cvInfo.downloadUrl && (
-              <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-xl transition-shadow">
-                <a href={cvInfo.downloadUrl} download={cvInfo.filename || "Barkin_Celiker_CV.pdf"}>
-                  CV İndir <Download className="ml-2 h-5 w-5" />
-                </a>
-              </Button>
-            )}
           </div>
         </div>
         <div className="relative h-80 md:h-[450px] rounded-xl overflow-hidden shadow-2xl">

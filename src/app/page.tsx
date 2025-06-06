@@ -5,12 +5,11 @@ import HeroSection from '@/components/landing/HeroSection';
 // import SkillsSection from '@/components/landing/SkillsSection';
 // import BlogSectionPreview from '@/components/landing/BlogSectionPreview';
 // import ContactSection from '@/components/landing/ContactSection';
-import { getAboutMeContent, getCvInfo /*, getSkills, getProjects, getBlogPosts*/ } from '@/lib/actions/adminActions';
-import type { /*Skill, Project, BlogPost,*/ AboutMeContent, CvInfo } from '@/types';
+import { getAboutMeContent /*, getSkills, getProjects, getBlogPosts*/ } from '@/lib/actions/adminActions';
+import type { /*Skill, Project, BlogPost,*/ AboutMeContent } from '@/types';
 
 export default async function HomePage() {
-  const aboutMeData: AboutMeContent = await getAboutMeContent(); // For HeroSection
-  const cvInfo: CvInfo = await getCvInfo(); // For HeroSection
+  const aboutMeData: AboutMeContent = await getAboutMeContent();
 
   // const currentSkillsData: Skill[] = await getSkills();
   // const currentProjectsData: Project[] = await getProjects();
@@ -30,7 +29,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <HeroSection aboutMe={aboutMeData} cvInfo={cvInfo} />
+      <HeroSection aboutMe={aboutMeData} />
       {/* <AboutSectionPreview /> */}
       {/* <ProjectsSectionPreview projects={currentProjectsData} /> */}
       {/* <SkillsSection skills={currentSkillsData} /> */}

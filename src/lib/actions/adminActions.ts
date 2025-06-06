@@ -4,14 +4,12 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { login as loginUser, logout as logoutUser } from '@/lib/auth';
-import type { Project, BlogPost, AboutMeContent, Skill, ContactMessage, CvInfo } from '@/types';
+import type { Project, BlogPost, AboutMeContent, Skill, ContactMessage } from '@/types';
 import { firestore } from '@/lib/firebase';
 import {
   collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, query, where, orderBy, Timestamp, setDoc
 } from 'firebase/firestore';
-import { DEFAULT_ABOUT_ME_CONTENT, CV_FILENAME } from '@/lib/constants';
-import fs from 'fs';
-import path from 'path';
+import { DEFAULT_ABOUT_ME_CONTENT } from '@/lib/constants';
 
 // Helper to convert Firestore Timestamps to ISO strings if they exist
 const convertTimestamps = (data: any) => {
@@ -501,105 +499,5 @@ export async function deleteSkill(id: string): Promise<{ success: boolean; error
   } catch (error: any) {
     console.error(`[Server Action] Error deleting skill ${id} from Firestore:`, error);
     return { success: false, error: error.message || `Failed to delete skill ${id} from Firestore. Details: ${error.toString()}` };
-  }
-}
-
-
-// CV Management Actions
-const PUBLIC_DIR = path.join(process.cwd(), 'public');
-const CV_PUBLIC_PATH = path.join(PUBLIC_DIR, CV_FILENAME);
-const CV_DETAILS_DOC_ID = 'cvDetails';
-
-export async function getCvInfo(): Promise<CvInfo> {
-  try {
-    const cvDetailsDocRef = doc(firestore, SITE_CONFIG_COLLECTION, CV_DETAILS_DOC_ID);
-    const docSnap = await getDoc(cvDetailsDocRef);
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      // Also verify file existence on filesystem for robustness, though Firestore is primary
-      const fileActuallyExists = fs.existsSync(CV_PUBLIC_PATH);
-      if (!fileActuallyExists) {
-          console.warn(`[Server Action] CV details found in Firestore for ${CV_FILENAME}, but file not found in public folder. Firestore record might be stale.`);
-          // Optionally, delete the Firestore record here if the file is missing
-          // await deleteDoc(cvDetailsDocRef);
-          // return { filename: null, exists: false, downloadUrl: null, error: "CV file missing from server, record removed." };
-      }
-      return {
-        filename: data.filename as string,
-        exists: true, // Based on Firestore record
-        downloadUrl: data.downloadUrl as string,
-      };
-    }
-    return { filename: null, exists: false, downloadUrl: null };
-  } catch (error: any) {
-    console.error("[Server Action] Error getting CV info from Firestore:", error);
-    return { filename: null, exists: false, downloadUrl: null, error: error.message };
-  }
-}
-
-export async function uploadCv(formData: FormData): Promise<{ success: boolean; error?: string }> {
-  const file = formData.get('cvFile') as File | null;
-
-  if (!file) {
-    return { success: false, error: 'No file uploaded.' };
-  }
-  if (file.type !== 'application/pdf') {
-    return { success: false, error: 'Invalid file type. Please upload a PDF.' };
-  }
-
-  try {
-    if (!fs.existsSync(PUBLIC_DIR)) {
-      fs.mkdirSync(PUBLIC_DIR, { recursive: true });
-    }
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    fs.writeFileSync(CV_PUBLIC_PATH, buffer);
-    console.log(`[Server Action] CV file uploaded to: ${CV_PUBLIC_PATH}`);
-
-    // Save details to Firestore
-    const cvDetailsDocRef = doc(firestore, SITE_CONFIG_COLLECTION, CV_DETAILS_DOC_ID);
-    const cvData = {
-      filename: CV_FILENAME,
-      downloadUrl: `/${CV_FILENAME}`, // Relative URL for public folder access
-      uploadedAt: Timestamp.now()
-    };
-    await setDoc(cvDetailsDocRef, cvData);
-    console.log(`[Server Action] CV details saved to Firestore: ${SITE_CONFIG_COLLECTION}/${CV_DETAILS_DOC_ID}`);
-    
-    revalidatePath('/admin/dashboard/cv');
-    revalidatePath('/');
-    return { success: true };
-  } catch (error: any) {
-    console.error("[Server Action] Error uploading CV or saving to Firestore:", error);
-    // Attempt to clean up if file was saved but Firestore failed
-    if (fs.existsSync(CV_PUBLIC_PATH) && !(error.code?.includes('firestore'))) {
-        // This check is a heuristic, better to specify Firestore errors precisely
-        // Or, make the Firestore write idempotent and retryable
-    }
-    return { success: false, error: error.message || 'Failed to upload CV and save details.' };
-  }
-}
-
-export async function deleteCv(): Promise<{ success: boolean; error?: string }> {
-  try {
-    // Delete from file system
-    if (fs.existsSync(CV_PUBLIC_PATH)) {
-      fs.unlinkSync(CV_PUBLIC_PATH);
-      console.log(`[Server Action] CV file deleted from: ${CV_PUBLIC_PATH}`);
-    } else {
-      console.log(`[Server Action] CV file not found at: ${CV_PUBLIC_PATH}, proceeding to clear Firestore record.`);
-    }
-
-    // Delete from Firestore
-    const cvDetailsDocRef = doc(firestore, SITE_CONFIG_COLLECTION, CV_DETAILS_DOC_ID);
-    await deleteDoc(cvDetailsDocRef);
-    console.log(`[Server Action] CV details deleted from Firestore: ${SITE_CONFIG_COLLECTION}/${CV_DETAILS_DOC_ID}`);
-
-    revalidatePath('/admin/dashboard/cv');
-    revalidatePath('/');
-    return { success: true };
-  } catch (error: any) {
-    console.error("[Server Action] Error deleting CV or its Firestore record:", error);
-    return { success: false, error: error.message || 'Failed to delete CV.' };
   }
 }
