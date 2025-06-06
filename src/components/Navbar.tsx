@@ -65,7 +65,7 @@ export default function Navbar() {
   if (!mounted) {
     // Render a simplified version or null during SSR to avoid hydration mismatch
     return (
-      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-gradient-to-r from-card via-background to-primary/10 shadow-md">
         <div className="container flex h-16 items-center justify-between">
            <Link href="/" className="flex items-center space-x-2 text-2xl font-headline font-bold text-primary hover:text-primary/80 transition-colors">
             <CodeXml className="h-8 w-8" />
@@ -90,7 +90,7 @@ export default function Navbar() {
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-gradient-to-r from-card via-background to-primary/10 shadow-md backdrop-blur supports-[backdrop-filter]:bg-opacity-60">
       <div className="container flex h-16 items-center justify-between">
         {siteLogo}
         <nav className="hidden md:flex items-center space-x-6">
@@ -100,7 +100,7 @@ export default function Navbar() {
               <Link
                 key={link.label}
                 href={link.href}
-                className={`text-base font-medium transition-colors hover:text-primary ${ // Changed from text-sm to text-base
+                className={`text-lg font-medium transition-colors hover:text-primary ${
                   isActive ? 'text-primary font-semibold' : 'text-foreground/70'
                 }`}
               >
@@ -137,7 +137,7 @@ export default function Navbar() {
                         <SheetClose key={link.label} asChild>
                           <Link
                             href={link.href}
-                            className={`text-lg font-medium transition-colors hover:text-primary ${ // Changed from text-lg (already large enough)
+                            className={`text-lg font-medium transition-colors hover:text-primary ${
                               isActive ? 'text-primary font-semibold' : 'text-foreground/80'
                             }`}
                           >

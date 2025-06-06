@@ -11,7 +11,7 @@ interface HeroSectionProps {
 
 export default function HeroSection({ aboutMe }: HeroSectionProps) {
   return (
-    <section className="bg-gradient-to-br from-background via-card to-primary/10 py-20 md:py-32 overflow-hidden">
+    <section className="bg-gradient-to-br from-background via-card to-primary/20 py-20 md:py-32 overflow-hidden">
       <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
         <div className="space-y-6 text-center md:text-left animate-in fade-in slide-in-from-left-12 duration-700">
           <h1 className="text-4xl lg:text-6xl font-headline font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-primary">
