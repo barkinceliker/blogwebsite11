@@ -28,21 +28,16 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
     let sessionData: UserSession | null = null;
 
     if (querySnapshot.empty) {
-      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        sessionData = {
-          email,
-          name: AUTHOR_NAME,
-          isAuthenticated: true,
-          loginTimestamp: Date.now(),
-        };
-      } else {
-        return { success: false, error: 'Invalid email or password' };
-      }
+      // If no admin with this email is found in Firestore, authentication fails.
+      // The fallback to ADMIN_EMAIL and ADMIN_PASSWORD from constants.ts is removed.
+      return { success: false, error: 'Invalid email or password.' };
     } else {
+      // Admin with this email exists in Firestore, proceed to check password.
       const adminDoc = querySnapshot.docs[0];
       const adminData = adminDoc.data();
 
       if (!adminData.password) {
+        console.error(`[Auth] Admin document for ${email} is missing 'password' field in Firestore.`);
         return { success: false, error: 'Admin configuration error. Password missing.' };
       }
       
@@ -50,12 +45,13 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
       if (firestorePassword === password) {
         sessionData = {
           email,
-          name: adminData.name || AUTHOR_NAME, 
+          name: adminData.name || AUTHOR_NAME, // Use Firestore name, fallback to AUTHOR_NAME
           isAuthenticated: true,
           loginTimestamp: Date.now(),
         };
       } else {
-        return { success: false, error: 'Invalid email or password' };
+        // Password in Firestore does not match the provided password.
+        return { success: false, error: 'Invalid email or password.' };
       }
     }
 
@@ -69,7 +65,7 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
       });
       return { success: true, session: sessionData };
     }
-    // Bu satıra normalde gelinmemeli ama olası bir durum için
+    // This line should ideally not be reached if logic above is complete.
     return { success: false, error: 'An unknown error occurred during login processing.' };
 
   } catch (error: any) {
@@ -101,10 +97,16 @@ export async function getSession(): Promise<UserSession | null> {
     try {
       const sessionData = JSON.parse(sessionCookie.value) as UserSession;
       
+      // Check for session expiry: 1 day
       if (sessionData.isAuthenticated && sessionData.loginTimestamp && (Date.now() - sessionData.loginTimestamp > (60 * 60 * 24 * 1000))) {
-        // Oturum süresi dolmuşsa, doğrudan logout yapma, sadece isAuthenticated: false döndür.
-        // logout() sunucu eylemi olarak ayrı çağrılmalı veya istemci tarafı yönlendirmeli.
-        return { ...sessionData, isAuthenticated: false }; 
+        // Session has expired.
+        // Consider calling logout() here or ensuring client redirects appropriately.
+        // For now, just return as not authenticated.
+        console.log(`[Auth] Session for ${sessionData.email} has expired.`);
+        // It's better to remove the cookie if expired
+        // await logout(); // This would cause issues if called from a context where cookies can't be set
+        // A simple solution is to return null or an unauthenticated session.
+        return null; 
       }
       
       if (sessionData.isAuthenticated) {
