@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -55,7 +56,10 @@ export default function AdminLoginForm() {
           <LogIn className="mr-3 h-8 w-8 text-primary" />
           Admin Panel
         </CardTitle>
-        <CardDescription>Please log in to manage site content.</CardDescription>
+        <CardDescription>
+          Please log in to manage site content. <br />
+          (If using default credentials: email `aaa@gmail.com`, password `aaaaaa`)
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
