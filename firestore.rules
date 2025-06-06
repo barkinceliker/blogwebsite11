@@ -16,31 +16,32 @@ service cloud.firestore {
     // but only written via server actions.
     match /projects/{projectId} {
       allow read: if true;
-      allow write: if true; // Allow server-side writes
+      allow write: if true; // Admin panelinden yazılabilmesi için
     }
 
     match /blogPosts/{postId} {
       allow read: if true;
-      allow write: if true; // Allow server-side writes
+      allow write: if true; // Admin panelinden yazılabilmesi için
     }
 
     match /skills/{skillId} {
       allow read: if true;
-      allow write: if true; // Allow server-side writes
+      allow write: if true; // Admin panelinden yazılabilmesi için
     }
 
     // Rule for 'About Me' content if stored in Firestore
+    // This assumes a single document, e.g., /siteContent/aboutMeDetails
     match /siteContent/aboutMeDetails {
       allow read: if true;
-      allow write: if true; // Allow server-side writes
+      allow write: if true; // Admin panelinden yazılabilmesi için
     }
 
     // Rules for contact messages
-    // Disallow client-side reads.
-    // Allow server to write new messages.
+    // Allow server-side actions to write new messages.
+    // Allow server-side actions to read messages for the admin panel.
     match /contactMessages/{messageId} {
-      allow read: if false; 
-      allow write: if true;  // Allow server to write new messages
+      allow read: if true;
+      allow write: if true;
     }
 
     // Default deny for any other paths not explicitly matched
