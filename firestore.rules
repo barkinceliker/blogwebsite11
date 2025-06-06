@@ -4,48 +4,49 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Admins collection:
-    // - Allow unauthenticated reads for email lookup during server-side login.
-    // - Disallow client-side writes. Manage admins through Firebase Console.
+    // Rule for admins collection
+    // Allows server-side actions to read admin emails for login.
+    // Client-side writes are disallowed. Admins should be managed via Firebase Console.
     match /admins/{adminId} {
-      allow read: if true; // Server action reads this to verify credentials
-      allow write: if false; // Prevent client-side modification
+      allow read: if true;
+      allow write: if false;
     }
 
-    // Publicly readable collections (assuming these are or will be in Firestore)
+    // Rules for public content that is read by everyone
+    // but only written via server actions.
     match /projects/{projectId} {
       allow read: if true;
-      allow write: if false; // Writes handled by server actions
+      allow write: if false;
     }
 
     match /blogPosts/{postId} {
       allow read: if true;
-      allow write: if false; // Writes handled by server actions
+      allow write: if false;
     }
 
     match /skills/{skillId} {
       allow read: if true;
-      allow write: if false; // Writes handled by server actions
+      allow write: if false;
     }
 
-    // Example for "About Me" content if stored in Firestore
-    // match /siteContent/aboutMe {
-    //   allow read: if true;
-    //   allow write: if false; // Writes handled by server actions
-    // }
+    // Rule for 'About Me' content if stored in Firestore
+    // This assumes a single document, e.g., /siteContent/aboutMeDetails
+    match /siteContent/aboutMeDetails {
+      allow read: if true;
+      allow write: if false;
+    }
 
-    // Contact Messages:
-    // - Client-side reads should be disallowed. Admin fetches via server action.
-    // - Client-side writes (form submissions) are handled by server actions.
+    // Rules for contact messages
+    // Disallow client-side reads and writes.
+    // Messages are submitted via server actions and read by admins via server actions.
     match /contactMessages/{messageId} {
-      allow read: if false; // Server actions will fetch for admin panel
-      allow write: if false; // Server actions handle creation
+      allow read: if false;
+      allow write: if false;
     }
 
-    // Default deny for any other paths not explicitly matched.
-    // It's good practice to end with a catch-all deny rule.
+    // Default deny for any other paths not explicitly matched
     match /{document=**} {
       allow read, write: if false;
     }
-  }
-}
+  } // Closes: match /databases/{database}/documents
+} // Closes: service cloud.firestore
