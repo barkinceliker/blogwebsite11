@@ -25,7 +25,7 @@ export default function AboutPage() {
                 src="https://placehold.co/400x500.png"
                 alt={ABOUT_ME_CONTENT.greeting}
                 fill
-                sizes="100vw"
+                sizes="(max-width: 767px) 100vw, 33vw"
                 style={{ objectFit: 'cover' }}
                 data-ai-hint="person coding analysis"
                 className="transition-transform duration-500 hover:scale-105"

@@ -20,13 +20,13 @@ export default function ProjectsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {PROJECTS_DATA.map((project) => (
-          <Card key={project.id} id={project.id} className="flex flex-col overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-lg scroll-mt-20">
+          <Card key={project.id} id={project.id} className="flex flex-col overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-lg scroll-mt-20 group">
             <div className="relative h-60 w-full">
               <Image
                 src={project.imageUrl}
                 alt={project.title}
                 fill
-                sizes="100vw"
+                sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 33vw"
                 style={{ objectFit: 'cover' }}
                 className="transition-transform duration-500 group-hover:scale-105"
                 data-ai-hint={project.dataAiHint || "project screenshot"}

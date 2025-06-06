@@ -25,7 +25,7 @@ export default function BlogSectionPreview() {
                 src={post.imageUrl}
                 alt={post.title}
                 fill
-                sizes="100vw"
+                sizes="(max-width: 767px) 100vw, 50vw"
                 style={{ objectFit: 'cover' }}
                 data-ai-hint={post.dataAiHint || "technology blog"}
               />
