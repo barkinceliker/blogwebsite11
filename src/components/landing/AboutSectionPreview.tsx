@@ -12,27 +12,28 @@ export default async function AboutSectionPreview() {
   const aboutMeData: AboutMeContent = await getAboutMeContent();
 
   return (
-    <SectionWrapper id="about" className="bg-background">
+    <SectionWrapper id="about" className="bg-gradient-to-b from-card via-background to-card">
       <div className="text-center mb-12">
-        <h2 className="text-3xl md:text-4xl font-headline font-bold">About Me</h2>
+        <h2 className="text-3xl md:text-4xl font-headline font-bold text-primary">About Me</h2>
         <p className="text-lg text-muted-foreground mt-2">A glimpse into my background and aspirations.</p>
       </div>
-      <Card className="overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300">
+      <Card className="group overflow-hidden shadow-xl hover:shadow-primary/30 transition-all duration-300 ease-in-out border-border hover:border-primary/50 transform hover:-translate-y-1">
         <div className="md:flex">
-          <div className="md:w-1/3 relative min-h-[300px] md:min-h-full">
+          <div className="md:w-1/3 relative min-h-[300px] md:min-h-full overflow-hidden">
             <Image 
               src="https://placehold.co/400x600.png" 
-              alt="Barkın Çeliker"
+              alt={aboutMeData.greeting || "Barkın Çeliker"}
               fill
               sizes="(max-width: 767px) 100vw, 33vw"
               style={{ objectFit: "cover" }}
+              className="transition-transform duration-500 group-hover:scale-110"
               data-ai-hint="student working computer"
             />
           </div>
           <div className="md:w-2/3">
             <CardHeader>
-              <CardTitle className="text-2xl md:text-3xl flex items-center">
-                <UserCircle className="mr-3 h-8 w-8 text-primary" />
+              <CardTitle className="text-2xl md:text-3xl flex items-center text-primary group-hover:text-accent transition-colors">
+                <UserCircle className="mr-3 h-8 w-8" />
                 {aboutMeData.greeting}
               </CardTitle>
             </CardHeader>
@@ -43,7 +44,7 @@ export default async function AboutSectionPreview() {
               <p className="text-muted-foreground leading-relaxed">
                 {aboutMeData.mission.substring(0,150)}...
               </p>
-              <Button asChild variant="link" className="px-0 text-primary hover:text-primary/80">
+              <Button asChild variant="link" className="px-0 text-accent hover:text-primary group-hover:underline">
                 <Link href="/about">
                   Read More About Me &rarr;
                 </Link>
