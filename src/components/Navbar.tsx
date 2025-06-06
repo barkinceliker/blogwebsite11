@@ -56,7 +56,9 @@ export default function Navbar() {
     } else if (linkHref.startsWith("/#")) { // Section link like /#about
       return pathname === "/" && currentHash === linkHref.substring(1);
     } else { // Page link like /admin
-      return pathname === linkHref && (currentHash === "" || currentHash === `#${linkHref.split('/').pop()}`);
+      // For page links, ignore the hash for active state determination on the page itself.
+      // The hash part is more relevant for scrolling on the homepage.
+      return pathname.startsWith(linkHref) && (linkHref !== "/" || currentHash === "");
     }
   };
   
@@ -98,7 +100,7 @@ export default function Navbar() {
               <Link
                 key={link.label}
                 href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
+                className={`text-base font-medium transition-colors hover:text-primary ${ // Changed from text-sm to text-base
                   isActive ? 'text-primary font-semibold' : 'text-foreground/70'
                 }`}
               >
@@ -135,10 +137,9 @@ export default function Navbar() {
                         <SheetClose key={link.label} asChild>
                           <Link
                             href={link.href}
-                            className={`text-lg font-medium transition-colors hover:text-primary ${
+                            className={`text-lg font-medium transition-colors hover:text-primary ${ // Changed from text-lg (already large enough)
                               isActive ? 'text-primary font-semibold' : 'text-foreground/80'
                             }`}
-                            // onClick={() => setIsMobileMenuOpen(false)} // Removed this line
                           >
                             {link.label}
                           </Link>
