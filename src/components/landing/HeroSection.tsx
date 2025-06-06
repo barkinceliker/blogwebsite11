@@ -30,13 +30,13 @@ export default function HeroSection({ aboutMe }: HeroSectionProps) {
         </div>
         <div className="relative h-80 md:h-[450px] rounded-xl overflow-hidden shadow-2xl shadow-primary/20 animate-in fade-in slide-in-from-right-12 duration-700">
            <Image
-            src="https://placehold.co/600x400.png"
-            alt={aboutMe.greeting || "Data Analyst"}
+            src="https://placehold.co/800x1000.png"
+            alt={aboutMe.greeting || "Professional man in a suit"}
             fill
             sizes="(max-width: 767px) 100vw, 50vw"
-            style={{ objectFit: 'cover' }}
+            style={{ objectFit: 'cover', objectPosition: 'center' }}
             priority
-            data-ai-hint="engaging person"
+            data-ai-hint="businessman portrait"
             className="transform hover:scale-105 transition-transform duration-500"
           />
         </div>
