@@ -22,13 +22,13 @@ export default async function HeroSection() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
             <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-shadow">
               <Link href="/projects">
-                View My Projects <ArrowRight className="ml-2 h-5 w-5" />
+                Projelerimi Görüntüle <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-xl transition-shadow">
-              <Link href="/contact">
-                Get In Touch <Download className="ml-2 h-5 w-5" />
-              </Link>
+              <a href="/Barkin_Celiker_CV.pdf" download="Barkın_Çeliker_CV.pdf">
+                CV İndir <Download className="ml-2 h-5 w-5" />
+              </a>
             </Button>
           </div>
         </div>
