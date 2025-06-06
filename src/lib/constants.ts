@@ -24,6 +24,7 @@ export const ADMIN_NAV_LINKS = [
   { href: "/admin/dashboard/blog", label: "Blog Posts" },
   { href: "/admin/dashboard/skills", label: "Skills" },
   { href: "/admin/dashboard/contact", label: "Messages" },
+  { href: "/admin/dashboard/cv", label: "CV" }, // Added CV link
   { href: "/admin/dashboard/settings", label: "Settings"},
 ];
 

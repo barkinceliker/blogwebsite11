@@ -47,8 +47,10 @@ export default function AdminLoginForm({ currentSession }: AdminLoginFormProps) 
         title: 'Login Successful!',
         description: `Welcome, ${result.name}!`,
       });
-      router.push('/admin/dashboard');
-      router.refresh(); 
+      // router.push('/admin/dashboard');
+      // router.refresh(); 
+      // Force a full page reload to ensure layout picks up new session
+      window.location.href = '/admin/dashboard';
     } else {
       toast({
         title: 'Login Failed',
@@ -60,7 +62,9 @@ export default function AdminLoginForm({ currentSession }: AdminLoginFormProps) 
 
   const onLogout = async () => {
     await handleLogout();
-    router.refresh(); 
+    // router.refresh(); 
+    // Force a full page reload to ensure layout picks up logged out state
+    window.location.href = '/admin';
   };
 
   if (currentSession?.isAuthenticated) {
