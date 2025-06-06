@@ -36,7 +36,7 @@ export default function HeroSection({ aboutMe }: HeroSectionProps) {
             sizes="(max-width: 767px) 100vw, 50vw"
             style={{ objectFit: 'cover' }}
             priority
-            data-ai-hint="professional portrait technology"
+            data-ai-hint="engaging person"
             className="transform hover:scale-105 transition-transform duration-500"
           />
         </div>
