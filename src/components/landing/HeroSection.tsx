@@ -3,19 +3,24 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Download } from 'lucide-react';
 import Image from 'next/image';
-import { getAboutMeContent, getCvInfo } from '@/lib/actions/adminActions'; // Fetch dynamic content
+// getAboutMeContent and getCvInfo will be passed as props from page.tsx
 import type { AboutMeContent, CvInfo } from '@/types';
 
-export default async function HeroSection() {
-  const aboutMeData: AboutMeContent = await getAboutMeContent();
-  const cvInfo: CvInfo = await getCvInfo();
+interface HeroSectionProps {
+  aboutMe: AboutMeContent;
+  cvInfo: CvInfo;
+}
+
+export default function HeroSection({ aboutMe, cvInfo }: HeroSectionProps) {
+  // const aboutMeData: AboutMeContent = await getAboutMeContent();
+  // const cvInfo: CvInfo = await getCvInfo();
 
   return (
     <section className="bg-gradient-to-br from-background to-secondary py-20 md:py-32">
       <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
         <div className="space-y-6 text-center md:text-left">
           <h1 className="text-4xl lg:text-6xl font-headline font-bold tracking-tight">
-            {aboutMeData.greeting}
+            {aboutMe.greeting}
           </h1>
           <p className="text-lg text-foreground/80 md:text-xl">
             A passionate Management Information Systems student at Yaşar University, specializing in Data Analysis and Business Intelligence. Welcome to my personal hub!
@@ -28,7 +33,7 @@ export default async function HeroSection() {
             </Button>
             {cvInfo.exists && cvInfo.downloadUrl && (
               <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-xl transition-shadow">
-                <a href={cvInfo.downloadUrl} download={cvInfo.filename || "Barkın_Çeliker_CV.pdf"}>
+                <a href={cvInfo.downloadUrl} download={cvInfo.filename || "Barkin_Celiker_CV.pdf"}>
                   CV İndir <Download className="ml-2 h-5 w-5" />
                 </a>
               </Button>
