@@ -87,13 +87,11 @@ export async function updateProject(id: string, formData: FormData): Promise<{ s
 }
 
 export async function deleteProject(id: string): Promise<{ success: boolean; error?: string }> {
-  const initialLength = PROJECTS_DATA.length;
-  const filteredProjects = PROJECTS_DATA.filter(p => p.id !== id);
-  if (filteredProjects.length === initialLength) {
+  const projectIndex = PROJECTS_DATA.findIndex(p => p.id === id);
+  if (projectIndex === -1) {
      return { success: false, error: "Project not found for deletion." };
   }
-  // @ts-ignore
-  PROJECTS_DATA = filteredProjects; // Reassign to update the array if it's 'let'
+  PROJECTS_DATA.splice(projectIndex, 1); // Modify in place
   console.log(`[Server Action] deleteProject called for id: ${id}`);
   revalidatePath('/admin/dashboard/projects');
   revalidatePath('/projects');
@@ -182,17 +180,16 @@ export async function updateBlogPost(id: string, formData: FormData): Promise<{ 
 }
 
 export async function deleteBlogPost(id: string): Promise<{ success: boolean; error?: string }> {
-  const postToDelete = BLOG_POSTS_DATA.find(p => p.id === id);
-  if (!postToDelete) {
+  const postIndex = BLOG_POSTS_DATA.findIndex(p => p.id === id);
+  if (postIndex === -1) {
     return { success: false, error: "Blog post not found for deletion." };
   }
-  const slug = postToDelete.slug;
-  // @ts-ignore
-  BLOG_POSTS_DATA = BLOG_POSTS_DATA.filter(p => p.id !== id);
+  const slug = BLOG_POSTS_DATA[postIndex].slug; // Get slug before deleting
+  BLOG_POSTS_DATA.splice(postIndex, 1); // Modify in place
   console.log(`[Server Action] deleteBlogPost called for id: ${id}`);
   revalidatePath('/admin/dashboard/blog');
   revalidatePath('/blog');
-  revalidatePath(`/blog/${slug}`); // Revalidate specific slug page
+  revalidatePath(`/blog/${slug}`);
   revalidatePath('/');
   return { success: true };
 }
@@ -328,15 +325,17 @@ export async function updateSkill(id: string, formData: FormData): Promise<{ suc
 }
 
 export async function deleteSkill(id: string): Promise<{ success: boolean; error?: string }> {
-  const initialLength = SKILLS_DATA.length;
-  // @ts-ignore
-  SKILLS_DATA = SKILLS_DATA.filter(s => s.id !== id);
-  if (SKILLS_DATA.length === initialLength) {
+  const skillIndex = SKILLS_DATA.findIndex(s => s.id === id);
+  if (skillIndex === -1) {
     return { success: false, error: "Skill not found for deletion." };
   }
+  SKILLS_DATA.splice(skillIndex, 1); // Modify in place
   console.log(`[Server Action] deleteSkill called for id: ${id}`);
   revalidatePath('/admin/dashboard/skills');
   revalidatePath('/about');
   revalidatePath('/');
   return { success: true };
 }
+
+
+    

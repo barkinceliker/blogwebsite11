@@ -1,3 +1,4 @@
+
 import { cookies } from 'next/headers';
 import { ADMIN_EMAIL, ADMIN_PASSWORD, AUTH_COOKIE_NAME } from './constants';
 import type { UserSession } from '@/types';
@@ -8,7 +9,8 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
 
   if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
     const sessionData: UserSession = { email, name: 'Admin User', isAuthenticated: true, loginTimestamp: Date.now() };
-    cookies().set(AUTH_COOKIE_NAME, JSON.stringify(sessionData), {
+    const cookieStore = await cookies();
+    cookieStore.set(AUTH_COOKIE_NAME, JSON.stringify(sessionData), {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       maxAge: 60 * 60 * 24, // 1 day
@@ -21,11 +23,13 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
 }
 
 export async function logout(): Promise<void> {
-  cookies().delete(AUTH_COOKIE_NAME);
+  const cookieStore = await cookies();
+  cookieStore.delete(AUTH_COOKIE_NAME);
 }
 
 export async function getSession(): Promise<UserSession | null> {
-  const sessionCookie = cookies().get(AUTH_COOKIE_NAME);
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get(AUTH_COOKIE_NAME);
   if (sessionCookie?.value) {
     try {
       const sessionData = JSON.parse(sessionCookie.value);
