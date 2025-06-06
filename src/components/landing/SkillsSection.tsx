@@ -1,12 +1,18 @@
+
 'use client';
+import type React from 'react';
 import SectionWrapper from '@/components/SectionWrapper';
 import { Progress } from '@/components/ui/progress';
-import { SKILLS_DATA } from '@/lib/constants';
+import type { Skill } from '@/types'; // Skill tipini import ediyoruz
 import * as LucideIcons from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Lightbulb } from 'lucide-react';
 
-export default function SkillsSection() {
+interface SkillsSectionProps {
+  skills: Skill[]; // skills prop'unu tanımlıyoruz
+}
+
+export default function SkillsSection({ skills }: SkillsSectionProps) {
   return (
     <SectionWrapper id="skills" className="bg-background">
       <div className="text-center mb-12">
@@ -14,10 +20,10 @@ export default function SkillsSection() {
         <p className="text-lg text-muted-foreground mt-2">Key skills I bring to the table in data analysis and technology.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {SKILLS_DATA.map((skill) => {
+        {skills.map((skill) => {
           const IconComponent = LucideIcons[skill.icon as keyof typeof LucideIcons] || Lightbulb;
           return (
-            <Card key={skill.name} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <Card key={skill.id} className="shadow-lg hover:shadow-xl transition-shadow duration-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-lg font-medium">{skill.name}</CardTitle>
                 <IconComponent className="h-6 w-6 text-primary" />
@@ -31,6 +37,11 @@ export default function SkillsSection() {
           );
         })}
       </div>
+       {skills.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-xl text-muted-foreground">No skills to display at the moment. Add some from the admin panel!</p>
+        </div>
+      )}
     </SectionWrapper>
   );
 }
