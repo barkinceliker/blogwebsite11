@@ -1,8 +1,11 @@
+
 import ProjectForm from '@/components/admin/ProjectForm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getProjectById, updateProject } from '@/lib/actions/adminActions';
 import { notFound } from 'next/navigation';
 import { Edit } from 'lucide-react';
+
+export const dynamic = 'force-dynamic'; // Ensure dynamic rendering
 
 interface EditProjectPageProps {
   params: { id: string };

@@ -49,7 +49,7 @@ export default function AdminLoginForm({ currentSession }: AdminLoginFormProps) 
         description: `Welcome, ${result.name}!`,
       });
       router.push('/admin/dashboard');
-      router.refresh(); // Sayfanın ve layout'un yeniden yüklenmesini tetikler
+      router.refresh(); 
     } else {
       toast({
         title: 'Login Failed',
@@ -60,9 +60,8 @@ export default function AdminLoginForm({ currentSession }: AdminLoginFormProps) 
   }
 
   const onLogout = async () => {
-    await handleLogout(); // Bu zaten /admin'e yönlendiriyor
-    // router.push('/admin'); // handleLogout zaten yönlendirme yapıyor
-    // router.refresh(); // handleLogout sonrası revalidatePath yapılıyor
+    await handleLogout();
+    router.refresh(); 
   };
 
   if (currentSession?.isAuthenticated) {
@@ -97,8 +96,7 @@ export default function AdminLoginForm({ currentSession }: AdminLoginFormProps) 
           Admin Panel
         </CardTitle>
         <CardDescription>
-          Please log in to manage site content. <br />
-          (Default: email `aaa@gmail.com`, password `aaaaaa`)
+          Please log in to manage site content.
         </CardDescription>
       </CardHeader>
       <CardContent>
