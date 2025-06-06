@@ -1,16 +1,20 @@
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Download } from 'lucide-react';
 import Image from 'next/image';
-import { ABOUT_ME_CONTENT } from '@/lib/constants';
+import { getAboutMeContent } from '@/lib/actions/adminActions'; // Fetch dynamic content
+import type { AboutMeContent } from '@/types';
 
-export default function HeroSection() {
+export default async function HeroSection() {
+  const aboutMeData: AboutMeContent = await getAboutMeContent();
+
   return (
     <section className="bg-gradient-to-br from-background to-secondary py-20 md:py-32">
       <div className="container mx-auto px-4 grid md:grid-cols-2 gap-12 items-center">
         <div className="space-y-6 text-center md:text-left">
           <h1 className="text-4xl lg:text-6xl font-headline font-bold tracking-tight">
-            {ABOUT_ME_CONTENT.greeting}
+            {aboutMeData.greeting}
           </h1>
           <p className="text-lg text-foreground/80 md:text-xl">
             A passionate Management Information Systems student at Yaşar University, specializing in Data Analysis and Business Intelligence. Welcome to my personal hub!

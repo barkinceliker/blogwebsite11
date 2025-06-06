@@ -39,7 +39,7 @@ export default function BlogSectionPreview({ posts }: BlogSectionPreviewProps) {
               <CardHeader>
                 <CardTitle className="text-xl font-semibold">{post.title}</CardTitle>
                 <CardDescription className="text-sm text-muted-foreground">
-                  {format(new Date(post.date), 'MMMM d, yyyy')}
+                  {post.date ? format(new Date(post.date), 'MMMM d, yyyy') : 'Date not available'}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-grow">

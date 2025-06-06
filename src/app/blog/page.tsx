@@ -5,11 +5,14 @@ import SectionWrapper from '@/components/SectionWrapper';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BLOG_POSTS_DATA } from '@/lib/constants';
+import { getBlogPosts } from '@/lib/actions/adminActions';
+import type { BlogPost } from '@/types';
 import { ArrowRight, CalendarDays } from 'lucide-react';
 import { format } from 'date-fns';
 
-export default function BlogPage() {
+export default async function BlogPage() {
+  const blogPostsData: BlogPost[] = await getBlogPosts();
+
   return (
     <SectionWrapper id="blog" className="bg-gradient-to-b from-background via-secondary to-background">
       <header className="text-center mb-16">
@@ -19,9 +22,9 @@ export default function BlogPage() {
         </p>
       </header>
 
-      {BLOG_POSTS_DATA.length > 0 ? (
+      {blogPostsData.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {BLOG_POSTS_DATA.map((post) => (
+          {blogPostsData.map((post) => (
             <Card key={post.id} className="flex flex-col overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-lg group">
               <Link href={`/blog/${post.slug}`} className="block">
                 <div className="relative h-60 w-full overflow-hidden">
@@ -42,7 +45,7 @@ export default function BlogPage() {
                 </Link>
                 <CardDescription className="text-sm text-muted-foreground flex items-center pt-1">
                   <CalendarDays className="mr-2 h-4 w-4" />
-                  {format(new Date(post.date), 'MMMM d, yyyy')}
+                  {post.date ? format(new Date(post.date), 'MMMM d, yyyy') : 'Date not available'}
                 </CardDescription>
               </CardHeader>
               <CardContent className="flex-grow space-y-3">

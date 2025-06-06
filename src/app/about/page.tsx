@@ -3,16 +3,20 @@ import Image from 'next/image';
 import SectionWrapper from '@/components/SectionWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Zap, Target, Brain, Briefcase, GraduationCap } from 'lucide-react';
-import { ABOUT_ME_CONTENT, SKILLS_DATA } from '@/lib/constants';
+import { getAboutMeContent, getSkills } from '@/lib/actions/adminActions';
+import type { AboutMeContent, Skill } from '@/types';
 import { Progress } from '@/components/ui/progress';
 import * as LucideIcons from 'lucide-react';
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const aboutMeData: AboutMeContent = await getAboutMeContent();
+  const skillsData: Skill[] = await getSkills();
+
   return (
     <SectionWrapper id="about" className="bg-gradient-to-b from-background via-secondary to-background">
       <div className="max-w-4xl mx-auto">
         <header className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-headline font-bold mb-4">{ABOUT_ME_CONTENT.greeting}</h1>
+          <h1 className="text-4xl md:text-5xl font-headline font-bold mb-4">{aboutMeData.greeting}</h1>
           <p className="text-xl text-muted-foreground">
             Delving deeper into my journey, skills, and passion for data-driven solutions.
           </p>
@@ -23,7 +27,7 @@ export default function AboutPage() {
             <div className="md:w-1/3 relative min-h-[300px] md:min-h-0">
               <Image
                 src="https://placehold.co/400x500.png"
-                alt={ABOUT_ME_CONTENT.greeting}
+                alt={aboutMeData.greeting}
                 fill
                 sizes="(max-width: 767px) 100vw, 33vw"
                 style={{ objectFit: 'cover' }}
@@ -36,12 +40,12 @@ export default function AboutPage() {
                 <CardTitle className="text-2xl md:text-3xl font-headline">My Story</CardTitle>
               </CardHeader>
               <CardContent className="p-0 space-y-4 text-foreground/90 leading-relaxed">
-                <p>{ABOUT_ME_CONTENT.introduction}</p>
+                <p>{aboutMeData.introduction}</p>
                 <div className="mt-6 p-6 bg-primary/10 rounded-lg border border-primary/30">
                   <h3 className="text-xl font-semibold text-primary mb-2 flex items-center">
                     <Target className="mr-2 h-6 w-6" /> My Mission
                   </h3>
-                  <p className="text-primary/90">{ABOUT_ME_CONTENT.mission}</p>
+                  <p className="text-primary/90">{aboutMeData.mission}</p>
                 </div>
                  <div className="mt-6 p-6 bg-accent/10 rounded-lg border border-accent/30">
                   <h3 className="text-xl font-semibold text-accent-foreground mb-2 flex items-center">
@@ -54,17 +58,17 @@ export default function AboutPage() {
           </div>
         </Card>
 
-        <Card id="skills" className="mb-12 shadow-xl scroll-mt-20"> {/* Added id="skills" and scroll-mt for navbar offset */}
+        <Card id="skills" className="mb-12 shadow-xl scroll-mt-20">
           <CardHeader>
             <CardTitle className="text-2xl md:text-3xl font-headline flex items-center">
               <Brain className="mr-3 h-7 w-7 text-primary" /> Core Competencies
             </CardTitle>
           </CardHeader>
           <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {SKILLS_DATA.map((skill) => {
+            {skillsData.map((skill) => {
               const IconComponent = LucideIcons[skill.icon as keyof typeof LucideIcons] || Zap;
               return (
-                <div key={skill.name} className="p-4 bg-muted/50 rounded-lg">
+                <div key={skill.id} className="p-4 bg-muted/50 rounded-lg">
                   <div className="flex items-center justify-between mb-1">
                     <h4 className="font-semibold text-foreground">{skill.name}</h4>
                     <IconComponent className="h-5 w-5 text-primary" />
@@ -74,6 +78,9 @@ export default function AboutPage() {
                 </div>
               );
             })}
+            {skillsData.length === 0 && (
+              <p className="col-span-full text-center text-muted-foreground">No skills listed yet. Add them in the admin panel!</p>
+            )}
           </CardContent>
         </Card>
         
@@ -84,7 +91,7 @@ export default function AboutPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3 text-foreground/90 leading-relaxed">
-            <p>{ABOUT_ME_CONTENT.skillsSummary}</p>
+            <p>{aboutMeData.skillsSummary}</p>
             <p>
               I am actively seeking opportunities to apply my analytical skills in internships or entry-level positions
               where I can contribute to impactful projects and continue my growth as a data professional.

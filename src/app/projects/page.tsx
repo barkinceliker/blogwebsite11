@@ -4,11 +4,13 @@ import SectionWrapper from '@/components/SectionWrapper';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
-import { PROJECTS_DATA } from '@/lib/constants';
+import { getProjects } from '@/lib/actions/adminActions';
+import type { Project } from '@/types';
 import { ArrowRight, ExternalLink } from 'lucide-react';
 
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
+  const projectsData: Project[] = await getProjects();
+
   return (
     <SectionWrapper id="projects" className="bg-gradient-to-b from-background via-secondary to-background">
       <header className="text-center mb-16">
@@ -19,7 +21,7 @@ export default function ProjectsPage() {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {PROJECTS_DATA.map((project) => (
+        {projectsData.map((project) => (
           <Card key={project.id} id={project.id} className="flex flex-col overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-lg scroll-mt-20 group">
             <div className="relative h-60 w-full">
               <Image
@@ -58,7 +60,7 @@ export default function ProjectsPage() {
         ))}
       </div>
 
-      {PROJECTS_DATA.length === 0 && (
+      {projectsData.length === 0 && (
         <div className="text-center py-12">
           <p className="text-xl text-muted-foreground">No projects to display at the moment. Check back soon!</p>
         </div>

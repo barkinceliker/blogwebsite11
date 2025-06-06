@@ -1,12 +1,16 @@
+
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import SectionWrapper from '@/components/SectionWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { UserCircle } from 'lucide-react';
 import Image from 'next/image';
-import { ABOUT_ME_CONTENT } from '@/lib/constants';
+import { getAboutMeContent } from '@/lib/actions/adminActions';
+import type { AboutMeContent } from '@/types';
 
-export default function AboutSectionPreview() {
+export default async function AboutSectionPreview() {
+  const aboutMeData: AboutMeContent = await getAboutMeContent();
+
   return (
     <SectionWrapper id="about" className="bg-background">
       <div className="text-center mb-12">
@@ -29,15 +33,15 @@ export default function AboutSectionPreview() {
             <CardHeader>
               <CardTitle className="text-2xl md:text-3xl flex items-center">
                 <UserCircle className="mr-3 h-8 w-8 text-primary" />
-                {ABOUT_ME_CONTENT.greeting}
+                {aboutMeData.greeting}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground leading-relaxed">
-                {ABOUT_ME_CONTENT.introduction.substring(0, 250)}...
+                {aboutMeData.introduction.substring(0, 250)}...
               </p>
               <p className="text-muted-foreground leading-relaxed">
-                {ABOUT_ME_CONTENT.mission.substring(0,150)}...
+                {aboutMeData.mission.substring(0,150)}...
               </p>
               <Button asChild variant="link" className="px-0 text-primary hover:text-primary/80">
                 <Link href="/about">
