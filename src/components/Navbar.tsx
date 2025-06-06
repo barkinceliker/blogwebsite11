@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -12,6 +13,7 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [currentHash, setCurrentHash] = useState('');
   const pathname = usePathname();
 
   useEffect(() => {
@@ -22,6 +24,17 @@ export default function Navbar() {
     if (initialTheme === 'dark') {
       document.documentElement.classList.add('dark');
     }
+
+    const handleHashChange = () => {
+      setCurrentHash(window.location.hash);
+    };
+    
+    window.addEventListener('hashchange', handleHashChange);
+    handleHashChange(); // Set initial hash
+
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
   }, []);
 
   const toggleTheme = () => {
@@ -35,9 +48,40 @@ export default function Navbar() {
     }
   };
 
+  const getIsActive = (linkHref: string) => {
+    if (!mounted) return false; // Avoid SSR issues with window.location
+
+    if (linkHref === "/") { // Home link
+      return pathname === "/" && currentHash === "";
+    } else if (linkHref.startsWith("/#")) { // Section link like /#about
+      return pathname === "/" && currentHash === linkHref.substring(1);
+    } else { // Page link like /admin
+      // A page link is active if the pathname matches and there's no hash,
+      // or if the pathname matches and the hash points to the top of that page (e.g. /about#about)
+      return pathname === linkHref && (currentHash === "" || currentHash === `#${linkHref.split('/').pop()}`);
+    }
+  };
+  
   if (!mounted) {
-    return null; // Avoid hydration mismatch
+    // Render a simplified version or null during SSR to avoid hydration mismatch
+    // For example, render links without active state or a placeholder
+    return (
+      <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+        <div className="container flex h-16 items-center justify-between">
+           <Link href="/" className="flex items-center space-x-2 text-2xl font-headline font-bold text-primary hover:text-primary/80 transition-colors">
+            <CodeXml className="h-8 w-8" />
+            <span>{AUTHOR_NAME.split(' ')[0]}</span>
+          </Link>
+          <div className="flex items-center space-x-2">
+            {/* Placeholder for theme toggle and menu button to avoid layout shift */}
+            <div className="h-10 w-10" /> 
+            <div className="md:hidden h-10 w-10" />
+          </div>
+        </div>
+      </header>
+    );
   }
+
 
   const siteLogo = (
     <Link href="/" className="flex items-center space-x-2 text-2xl font-headline font-bold text-primary hover:text-primary/80 transition-colors">
@@ -51,17 +95,20 @@ export default function Navbar() {
       <div className="container flex h-16 items-center justify-between">
         {siteLogo}
         <nav className="hidden md:flex items-center space-x-6">
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className={`text-sm font-medium transition-colors hover:text-primary ${
-                pathname === link.href ? 'text-primary font-semibold' : 'text-foreground/70'
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {NAV_LINKS.map((link) => {
+            const isActive = getIsActive(link.href);
+            return (
+              <Link
+                key={link.label}
+                href={link.href}
+                className={`text-sm font-medium transition-colors hover:text-primary ${
+                  isActive ? 'text-primary font-semibold' : 'text-foreground/70'
+                }`}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
         <div className="flex items-center space-x-2">
           <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
@@ -85,19 +132,22 @@ export default function Navbar() {
                     </SheetClose>
                   </div>
                   <nav className="flex flex-col space-y-4">
-                    {NAV_LINKS.map((link) => (
-                      <SheetClose key={link.label} asChild>
-                        <Link
-                          href={link.href}
-                          className={`text-lg font-medium transition-colors hover:text-primary ${
-                            pathname === link.href ? 'text-primary font-semibold' : 'text-foreground/80'
-                          }`}
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          {link.label}
-                        </Link>
-                      </SheetClose>
-                    ))}
+                    {NAV_LINKS.map((link) => {
+                      const isActive = getIsActive(link.href);
+                      return(
+                        <SheetClose key={link.label} asChild>
+                          <Link
+                            href={link.href}
+                            className={`text-lg font-medium transition-colors hover:text-primary ${
+                              isActive ? 'text-primary font-semibold' : 'text-foreground/80'
+                            }`}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            {link.label}
+                          </Link>
+                        </SheetClose>
+                      );
+                    })}
                   </nav>
                 </div>
               </SheetContent>

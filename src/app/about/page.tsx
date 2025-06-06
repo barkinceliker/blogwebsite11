@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import SectionWrapper from '@/components/SectionWrapper';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,7 +9,7 @@ import * as LucideIcons from 'lucide-react';
 
 export default function AboutPage() {
   return (
-    <SectionWrapper className="bg-gradient-to-b from-background via-secondary to-background">
+    <SectionWrapper id="about" className="bg-gradient-to-b from-background via-secondary to-background">
       <div className="max-w-4xl mx-auto">
         <header className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-headline font-bold mb-4">{ABOUT_ME_CONTENT.greeting}</h1>
@@ -52,7 +53,7 @@ export default function AboutPage() {
           </div>
         </Card>
 
-        <Card className="mb-12 shadow-xl">
+        <Card id="skills" className="mb-12 shadow-xl scroll-mt-20"> {/* Added id="skills" and scroll-mt for navbar offset */}
           <CardHeader>
             <CardTitle className="text-2xl md:text-3xl font-headline flex items-center">
               <Brain className="mr-3 h-7 w-7 text-primary" /> Core Competencies

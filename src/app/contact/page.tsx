@@ -1,3 +1,4 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -65,7 +66,7 @@ export default function ContactPage() {
   }
 
   return (
-    <SectionWrapper className="bg-gradient-to-b from-background via-secondary to-background">
+    <SectionWrapper id="contact" className="bg-gradient-to-b from-background via-secondary to-background">
       <header className="text-center mb-16">
         <h1 className="text-4xl md:text-5xl font-headline font-bold">Contact Me</h1>
         <p className="text-xl text-muted-foreground mt-3">

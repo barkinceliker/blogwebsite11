@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import SectionWrapper from '@/components/SectionWrapper';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,7 +10,7 @@ import { ArrowRight, ExternalLink } from 'lucide-react';
 
 export default function ProjectsPage() {
   return (
-    <SectionWrapper className="bg-gradient-to-b from-background via-secondary to-background">
+    <SectionWrapper id="projects" className="bg-gradient-to-b from-background via-secondary to-background">
       <header className="text-center mb-16">
         <h1 className="text-4xl md:text-5xl font-headline font-bold">My Projects</h1>
         <p className="text-xl text-muted-foreground mt-3">
@@ -19,7 +20,7 @@ export default function ProjectsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {PROJECTS_DATA.map((project) => (
-          <Card key={project.id} id={project.id} className="flex flex-col overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-lg">
+          <Card key={project.id} id={project.id} className="flex flex-col overflow-hidden shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-lg scroll-mt-20">
             <div className="relative h-60 w-full">
               <Image
                 src={project.imageUrl}

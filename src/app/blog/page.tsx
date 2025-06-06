@@ -1,3 +1,4 @@
+
 import Link from 'next/link';
 import Image from 'next/image';
 import SectionWrapper from '@/components/SectionWrapper';
@@ -10,7 +11,7 @@ import { format } from 'date-fns';
 
 export default function BlogPage() {
   return (
-    <SectionWrapper className="bg-gradient-to-b from-background via-secondary to-background">
+    <SectionWrapper id="blog" className="bg-gradient-to-b from-background via-secondary to-background">
       <header className="text-center mb-16">
         <h1 className="text-4xl md:text-5xl font-headline font-bold">My Blog</h1>
         <p className="text-xl text-muted-foreground mt-3">

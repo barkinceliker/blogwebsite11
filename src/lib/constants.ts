@@ -1,3 +1,4 @@
+
 export const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "aaa@gmail.com";
 export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "aaaaaa";
 export const AUTH_COOKIE_NAME = "personal-hub-auth";
@@ -8,10 +9,11 @@ export const AUTHOR_NAME = "Barkın Çeliker";
 
 export const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
-  { href: "/projects", label: "Projects" },
-  { href: "/blog", label: "Blog" },
-  { href: "/contact", label: "Contact" },
+  { href: "/#about", label: "Hakkımda" },
+  { href: "/#projects", label: "Projeler" },
+  { href: "/#skills", label: "Beceriler" },
+  { href: "/#blog", label: "Blog" },
+  { href: "/#contact", label: "İletişim" },
   { href: "/admin", label: "Admin" },
 ];
 
@@ -96,4 +98,3 @@ export const ABOUT_ME_CONTENT = {
   mission: "My goal is to transform raw data into actionable insights, helping organizations understand their performance, identify opportunities, and make informed strategic choices. I am constantly exploring new tools and techniques in the data science field to enhance my analytical capabilities.",
   skillsSummary: "I have hands-on experience with Python for data manipulation, SQL for database querying, and tools like Tableau for data visualization. I am eager to apply my skills in a professional setting and contribute to data-driven projects."
 };
-
