@@ -36,8 +36,27 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
     console.log(`[Auth] Firestore query for email "${email}" returned ${querySnapshot.docs.length} documents.`);
 
     if (querySnapshot.empty) {
-      console.log(`[Auth] No admin found in Firestore with email: "${email}"`);
-      return { success: false, error: 'Invalid email or password' };
+      console.log(`[Auth] No admin found in Firestore with email: "${email}". Checking hardcoded fallback.`);
+      if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        console.log(`[Auth] Login successful using hardcoded fallback credentials for email: "${email}"`);
+        const sessionData: UserSession = {
+          email,
+          name: AUTHOR_NAME, // Using AUTHOR_NAME for the fallback admin
+          isAuthenticated: true,
+          loginTimestamp: Date.now(),
+        };
+        cookieStore.set(AUTH_COOKIE_NAME, JSON.stringify(sessionData), {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          maxAge: 60 * 60 * 24, // 1 day
+          path: '/',
+          sameSite: 'lax',
+        });
+        return { success: true };
+      } else {
+        console.log(`[Auth] Hardcoded fallback credentials do not match for email: "${email}" (Provided email: "${email}", Expected ADMIN_EMAIL: "${ADMIN_EMAIL}"; Provided password: "${password}", Expected ADMIN_PASSWORD: "${ADMIN_PASSWORD}")`);
+        return { success: false, error: 'Invalid email or password' };
+      }
     }
 
     const adminDoc = querySnapshot.docs[0];
@@ -56,7 +75,7 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
 
 
     if (firestorePassword === password) {
-      console.log(`[Auth] Password match for email: "${email}". Login successful.`);
+      console.log(`[Auth] Password match for email: "${email}" (Firestore). Login successful.`);
       const sessionData: UserSession = {
         email,
         name: adminData.name || AUTHOR_NAME, 
@@ -72,7 +91,7 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
       });
       return { success: true };
     } else {
-      console.log(`[Auth] Password mismatch for email: "${email}".`);
+      console.log(`[Auth] Password mismatch for email: "${email}" (Firestore).`);
       console.log(`[Auth] Detailed mismatch: Firestore ("${firestorePassword}") vs Form ("${password}")`);
       return { success: false, error: 'Invalid email or password' };
     }
