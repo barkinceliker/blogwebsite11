@@ -1,9 +1,9 @@
 
 import AdminSidebar from '@/components/admin/AdminSidebar';
-// import { isAuthenticated } from '@/lib/auth'; // Authentication check removed
-// import { redirect } from 'next/navigation'; // Redirect removed
+import { isAuthenticated } from '@/lib/auth'; // Authentication check re-added
+import { redirect } from 'next/navigation'; // Redirect re-added
 import { Toaster } from "@/components/ui/toaster";
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Admin Panel - Personal Hub',
@@ -16,11 +16,11 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Authentication check removed:
-  // if (!(await isAuthenticated())) {
-  //    // This should ideally be caught by middleware, but as a fallback.
-  //   redirect('/admin');
-  // }
+  // Authentication check re-added:
+  if (!(await isAuthenticated())) {
+     // This should ideally be caught by middleware, but as a fallback.
+    redirect('/admin');
+  }
 
   return (
     <div className="flex min-h-screen bg-muted/40">
