@@ -24,7 +24,12 @@ const convertTimestamps = (data: any) => {
 export async function handleLogin(formData: FormData): Promise<{ success: boolean; error?: string; name?: string }> {
   const result = await loginUser(formData);
   if (result.success && result.session) {
-    return { success: true, name: result.session.name };
+    // Giriş başarılıysa doğrudan dashboard'a yönlendir.
+    // Bu redirect, bir Error fırlattığı için bu fonksiyondan sonraki kod çalışmayacaktır.
+    // Bu nedenle, client tarafında ek bir yönlendirmeye gerek kalmaz.
+    redirect('/admin/dashboard');
+    // Aşağıdaki return normalde unreachable olacak, ama tip uyumluluğu için kalabilir.
+    // return { success: true, name: result.session.name }; 
   }
   return { success: false, error: result.error };
 }
@@ -489,5 +494,87 @@ export async function deleteSkill(id: string): Promise<{ success: boolean; error
   } catch (error: any) {
     console.error(`[Server Action] Error deleting skill ${id} from Firestore:`, error);
     return { success: false, error: error.message || `Failed to delete skill. Details: ${error.toString()}` };
+  }
+}
+export interface CvInfo {
+  exists: boolean;
+  filename?: string;
+  downloadUrl?: string;
+  error?: string;
+}
+
+const CV_FILE_PATH = 'public/cv/user_cv.pdf';
+const CV_PUBLIC_URL = '/cv/user_cv.pdf';
+
+// Node.js 'fs' and 'path' modules for server-side file operations
+// These will only work in a Node.js environment (like Next.js server actions)
+// NOT in the browser.
+import fs from 'fs/promises';
+import path from 'path';
+
+export async function getCvInfo(): Promise<CvInfo> {
+  try {
+    const filePath = path.join(process.cwd(), CV_FILE_PATH);
+    await fs.access(filePath); // Check if file exists
+    const stats = await fs.stat(filePath);
+    return {
+      exists: true,
+      filename: path.basename(filePath),
+      downloadUrl: CV_PUBLIC_URL,
+    };
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      return { exists: false }; // File does not exist
+    }
+    console.error("[Server Action] Error getting CV info:", error);
+    return { exists: false, error: "Could not retrieve CV information. " + error.message };
+  }
+}
+
+export async function uploadCv(formData: FormData): Promise<{ success: boolean; error?: string }> {
+  const file = formData.get('cvFile') as File | null;
+
+  if (!file) {
+    return { success: false, error: "No CV file provided." };
+  }
+  if (file.type !== 'application/pdf') {
+    return { success: false, error: "Invalid file type. Only PDF is allowed."};
+  }
+
+  try {
+    const directoryPath = path.join(process.cwd(), 'public/cv');
+    const filePath = path.join(directoryPath, 'user_cv.pdf');
+    
+    // Ensure directory exists
+    await fs.mkdir(directoryPath, { recursive: true });
+
+    // Convert File to Buffer
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
+    await fs.writeFile(filePath, buffer);
+    
+    revalidatePath('/admin/dashboard/cv');
+    return { success: true };
+  } catch (error: any) {
+    console.error("[Server Action] Error uploading CV:", error);
+    return { success: false, error: "Failed to upload CV. " + error.message };
+  }
+}
+
+export async function deleteCv(): Promise<{ success: boolean; error?: string }> {
+  try {
+    const filePath = path.join(process.cwd(), CV_FILE_PATH);
+    await fs.unlink(filePath); // Delete the file
+    revalidatePath('/admin/dashboard/cv');
+    return { success: true };
+  } catch (error: any) {
+    if (error.code === 'ENOENT') {
+      // File already deleted or never existed, consider it a success for deletion.
+      revalidatePath('/admin/dashboard/cv');
+      return { success: true }; 
+    }
+    console.error("[Server Action] Error deleting CV:", error);
+    return { success: false, error: "Failed to delete CV. " + error.message };
   }
 }

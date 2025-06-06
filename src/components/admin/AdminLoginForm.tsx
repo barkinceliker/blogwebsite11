@@ -27,7 +27,7 @@ interface AdminLoginFormProps {
 
 export default function AdminLoginForm({ currentSession }: AdminLoginFormProps) {
   const { toast } = useToast();
-  const router = useRouter(); // Keep for other potential uses, though redirect will be window.location
+  const router = useRouter(); 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -41,28 +41,45 @@ export default function AdminLoginForm({ currentSession }: AdminLoginFormProps) 
     formData.append('email', data.email);
     formData.append('password', data.password);
 
-    const result = await handleLogin(formData);
+    // `handleLogin` is a server action. If it throws an error (e.g. due to redirect),
+    // it will be caught here. If it returns, it means login failed.
+    try {
+      const result = await handleLogin(formData);
 
-    if (result.success && result.name) {
-      toast({
-        title: 'Login Successful!',
-        description: `Welcome, ${result.name}! Redirecting to dashboard...`,
-      });
-      // Force a full page reload to ensure the new cookie is sent with the request for the dashboard
-      window.location.assign('/admin/dashboard');
-    } else {
-      toast({
-        title: 'Login Failed',
-        description: result.error || 'An unexpected error occurred.',
-        variant: 'destructive',
-      });
+      // This part should only be reached if handleLogin doesn't redirect (i.e., login failed)
+      if (result && !result.success) {
+        toast({
+          title: 'Login Failed',
+          description: result.error || 'An unexpected error occurred.',
+          variant: 'destructive',
+        });
+      }
+      // If handleLogin is successful, it will redirect, and this client-side code
+      // for success handling (toast) won't be reached because the page will navigate away.
+      // The success toast might need to be handled differently if we want it after a server-side redirect.
+      // For now, a successful redirect is the primary indicator.
+    } catch (error: any) {
+      // This catch block will handle errors thrown by `redirect()` from the server action.
+      // Next.js throws a specific error for `redirect` which is not a "real" error
+      // but a signal for navigation. We typically don't need to do anything here
+      // unless we want to specifically handle `NEXT_REDIRECT` errors, which is rare.
+      // console.log("Caught error in onSubmit (potentially redirect):", error);
+      if (error.digest?.startsWith('NEXT_REDIRECT')) {
+        // This is an expected error when redirecting from a server action.
+        // No user-facing toast is needed here as the redirect is happening.
+      } else {
+        // For other types of errors during the server action call:
+        toast({
+          title: 'Login Attempt Failed',
+          description: error.message || 'An unexpected error occurred during the login process.',
+          variant: 'destructive',
+        });
+      }
     }
   }
 
   const onLogout = async () => {
-    await handleLogout();
-    // Forcing a full page reload for logout ensures clean state on the /admin page.
-    window.location.href = '/admin';
+    await handleLogout(); // Server action will redirect
   };
 
   if (currentSession?.isAuthenticated) {
