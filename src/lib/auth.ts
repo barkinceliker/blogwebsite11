@@ -115,23 +115,33 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
 export async function logout(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.delete(AUTH_COOKIE_NAME);
-  console.log('[Auth] User logged out');
+  console.log('[Auth] User logged out, cookie deleted.');
 }
 
 export async function getSession(): Promise<UserSession | null> {
-  const cookieStore = await cookies();
+  const cookieStore = cookies(); // Read-only access during render
   const sessionCookie = cookieStore.get(AUTH_COOKIE_NAME);
+
   if (sessionCookie?.value) {
     try {
-      const sessionData = JSON.parse(sessionCookie.value);
-      if (sessionData.loginTimestamp && (Date.now() - sessionData.loginTimestamp > (60 * 60 * 24 * 1000))) {
-         await logout(); 
-         console.log('[Auth] Session expired, logging out');
-         return null;
+      const sessionData = JSON.parse(sessionCookie.value) as UserSession;
+      
+      // Check for session expiry
+      if (sessionData.isAuthenticated && sessionData.loginTimestamp && (Date.now() - sessionData.loginTimestamp > (60 * 60 * 24 * 1000))) {
+        console.log('[Auth] Session considered expired based on timestamp.');
+        // Return session data but mark as not authenticated.
+        // The components calling isAuthenticated will handle the redirect.
+        return { ...sessionData, isAuthenticated: false }; 
       }
-      return sessionData as UserSession;
+      
+      // Ensure isAuthenticated is explicitly true if session is considered valid
+      if (sessionData.isAuthenticated) {
+          return sessionData;
+      }
+      // If sessionData.isAuthenticated is not true, treat as invalid.
+      return null; 
     } catch (error) {
-      console.error('[Auth] Failed to parse session cookie:', error);
+      console.error('[Auth] Failed to parse session cookie or invalid session structure:', error);
       return null;
     }
   }

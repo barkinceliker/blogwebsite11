@@ -1,7 +1,7 @@
 
 import AdminSidebar from '@/components/admin/AdminSidebar';
-import { isAuthenticated } from '@/lib/auth'; // Authentication check re-added
-import { redirect } from 'next/navigation'; // Redirect re-added
+import { isAuthenticated } from '@/lib/auth';
+import { redirect } from 'next/navigation';
 import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from 'next';
 
@@ -10,15 +10,14 @@ export const metadata: Metadata = {
   description: 'Manage your Personal Hub content.',
 };
 
+export const dynamic = 'force-dynamic'; // Ensures dynamic rendering
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Authentication check re-added:
   if (!(await isAuthenticated())) {
-     // This should ideally be caught by middleware, but as a fallback.
     redirect('/admin');
   }
 
