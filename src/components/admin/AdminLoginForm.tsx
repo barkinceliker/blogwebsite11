@@ -8,10 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { handleLogin } from '@/lib/actions/adminActions';
+import { handleLogin, handleLogout } from '@/lib/actions/adminActions';
 import { useToast } from '@/hooks/use-toast';
-import { LogIn } from 'lucide-react';
+import { LogIn, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import type { UserSession } from '@/types';
 
 const loginFormSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -20,7 +21,11 @@ const loginFormSchema = z.object({
 
 type LoginFormValues = z.infer<typeof loginFormSchema>;
 
-export default function AdminLoginForm() {
+interface AdminLoginFormProps {
+  currentSession: UserSession | null;
+}
+
+export default function AdminLoginForm({ currentSession }: AdminLoginFormProps) {
   const { toast } = useToast();
   const router = useRouter();
   const form = useForm<LoginFormValues>({
@@ -38,15 +43,50 @@ export default function AdminLoginForm() {
 
     const result = await handleLogin(formData);
 
-    if (!result.success) { // handleLogin redirects on success, so this block runs on failure.
+    if (result.success && result.name) {
+      toast({
+        title: 'Login Successful!',
+        description: `Welcome, ${result.name}!`,
+      });
+      router.push('/admin/dashboard');
+      router.refresh(); // Sayfanın ve layout'un yeniden yüklenmesini tetikler
+    } else {
       toast({
         title: 'Login Failed',
         description: result.error || 'An unexpected error occurred.',
         variant: 'destructive',
       });
     }
-    // On successful login, the server action `handleLogin` will perform a redirect.
-    // No client-side router.push() is needed here for success.
+  }
+
+  const onLogout = async () => {
+    await handleLogout(); // Bu zaten /admin'e yönlendiriyor
+    // router.push('/admin'); // handleLogout zaten yönlendirme yapıyor
+    // router.refresh(); // handleLogout sonrası revalidatePath yapılıyor
+  };
+
+  if (currentSession?.isAuthenticated) {
+    return (
+      <Card className="w-full max-w-md shadow-2xl">
+        <CardHeader className="text-center">
+          <CardTitle className="text-3xl font-headline flex items-center justify-center">
+            <LogIn className="mr-3 h-8 w-8 text-primary" />
+            Admin Panel
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6 text-center">
+          <p className="text-lg">
+            You are logged in as <span className="font-semibold text-primary">{currentSession.name}</span>.
+          </p>
+          <Button onClick={onLogout} className="w-full" variant="outline">
+            <LogOut className="mr-2 h-5 w-5" /> Logout
+          </Button>
+          <Button onClick={() => router.push('/admin/dashboard')} className="w-full">
+            Go to Dashboard
+          </Button>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -58,7 +98,7 @@ export default function AdminLoginForm() {
         </CardTitle>
         <CardDescription>
           Please log in to manage site content. <br />
-          (If using default credentials: email `aaa@gmail.com`, password `aaaaaa`)
+          (Default: email `aaa@gmail.com`, password `aaaaaa`)
         </CardDescription>
       </CardHeader>
       <CardContent>

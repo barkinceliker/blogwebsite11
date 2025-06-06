@@ -8,6 +8,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ADMIN_NAV_LINKS, AUTHOR_NAME } from '@/lib/constants';
 import { CodeXml, LayoutDashboard, FileText, Briefcase, MessageSquare, User, Settings, LogOut, Award } from 'lucide-react';
 import { handleLogout } from '@/lib/actions/adminActions';
+import type { UserSession } from '@/types';
 
 const iconMap: { [key: string]: React.ElementType } = {
   Dashboard: LayoutDashboard,
@@ -19,11 +20,16 @@ const iconMap: { [key: string]: React.ElementType } = {
   Settings: Settings,
 };
 
-export default function AdminSidebar() {
+interface AdminSidebarProps {
+  session: UserSession | null;
+}
+
+export default function AdminSidebar({ session }: AdminSidebarProps) {
   const pathname = usePathname();
 
   const onLogout = async () => {
     await handleLogout();
+    // Yönlendirme handleLogout içinde yapılıyor
   };
 
   return (
@@ -55,14 +61,16 @@ export default function AdminSidebar() {
             })}
           </nav>
         </ScrollArea>
-        <div className="p-4 mt-auto border-t border-sidebar-border">
-          <form action={onLogout}>
-            <Button variant="ghost" className="w-full justify-start text-base">
-              <LogOut className="mr-3 h-5 w-5" />
-              Logout
-            </Button>
-          </form>
-        </div>
+        {session?.isAuthenticated && (
+          <div className="p-4 mt-auto border-t border-sidebar-border">
+            <form action={onLogout}>
+              <Button variant="ghost" className="w-full justify-start text-base">
+                <LogOut className="mr-3 h-5 w-5" />
+                Logout
+              </Button>
+            </form>
+          </div>
+        )}
       </div>
     </aside>
   );

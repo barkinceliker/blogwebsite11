@@ -1,30 +1,27 @@
 
 import AdminSidebar from '@/components/admin/AdminSidebar';
-// import { isAuthenticated } from '@/lib/auth'; // Yönlendirme için kaldırıldı
-// import { redirect } from 'next/navigation'; // Yönlendirme için kaldırıldı
 import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from 'next';
+import { getSession } from '@/lib/auth';
+import type { UserSession } from '@/types';
 
 export const metadata: Metadata = {
   title: 'Admin Panel - Personal Hub',
   description: 'Manage your Personal Hub content.',
 };
 
-export const dynamic = 'force-dynamic'; // Ensures dynamic rendering
+export const dynamic = 'force-dynamic';
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Giriş yapmamış kullanıcıyı login sayfasına yönlendirme mantığı kaldırıldı.
-  // if (!(await isAuthenticated())) {
-  //   redirect('/admin');
-  // }
+  const session: UserSession | null = await getSession();
 
   return (
     <div className="flex min-h-screen bg-muted/40">
-      <AdminSidebar />
+      <AdminSidebar session={session} />
       <main className="flex-1 md:ml-64 pt-16 p-4 md:p-8">
         {children}
         <Toaster />

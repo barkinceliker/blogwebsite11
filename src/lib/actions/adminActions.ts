@@ -4,12 +4,12 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { login as loginUser, logout as logoutUser } from '@/lib/auth';
-import type { Project, BlogPost, AboutMeContent, Skill, ContactMessage } from '@/types';
+import type { Project, BlogPost, AboutMeContent, Skill, ContactMessage, UserSession } from '@/types';
 import { firestore } from '@/lib/firebase';
 import {
   collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, query, where, orderBy, Timestamp, setDoc
 } from 'firebase/firestore';
-import { DEFAULT_ABOUT_ME_CONTENT } from '@/lib/constants';
+import { DEFAULT_ABOUT_ME_CONTENT, SITE_CONFIG_COLLECTION, ABOUT_ME_DOC_ID } from '@/lib/constants';
 
 // Helper to convert Firestore Timestamps to ISO strings if they exist
 const convertTimestamps = (data: any) => {
@@ -22,16 +22,19 @@ const convertTimestamps = (data: any) => {
   return newData;
 };
 
-export async function handleLogin(formData: FormData) {
+export async function handleLogin(formData: FormData): Promise<{ success: boolean; error?: string; name?: string }> {
   const result = await loginUser(formData);
-  if (result.success) {
-    redirect('/admin/dashboard');
+  if (result.success && result.session) {
+    // redirect('/admin/dashboard'); // Yönlendirmeyi kaldır, client tarafı halledecek
+    return { success: true, name: result.session.name };
   }
-  return result;
+  return { success: false, error: result.error };
 }
 
 export async function handleLogout() {
   await logoutUser();
+  revalidatePath('/admin', 'layout'); // Admin layout'unu ve sayfasını yeniden doğrula
+  revalidatePath('/admin/dashboard', 'layout'); // Dashboard ve alt sayfalarını da etkileyebilir
   redirect('/admin');
 }
 
@@ -302,10 +305,6 @@ export async function deleteBlogPost(id: string): Promise<{ success: boolean; er
 }
 
 // AboutMeContent actions
-const ABOUT_ME_DOC_ID = 'aboutMeDetails';
-const SITE_CONFIG_COLLECTION = 'siteConfig';
-
-
 export async function getAboutMeContent(): Promise<AboutMeContent> {
   try {
     const aboutMeDocRef = doc(firestore, SITE_CONFIG_COLLECTION, ABOUT_ME_DOC_ID);
@@ -313,7 +312,6 @@ export async function getAboutMeContent(): Promise<AboutMeContent> {
     if (docSnap.exists()) {
       return docSnap.data() as AboutMeContent;
     }
-    // If it doesn't exist, create it with default content
     console.log(`[Server Action] AboutMeContent not found, creating with default for ${SITE_CONFIG_COLLECTION}/${ABOUT_ME_DOC_ID}`);
     await setDoc(aboutMeDocRef, DEFAULT_ABOUT_ME_CONTENT);
     return DEFAULT_ABOUT_ME_CONTENT;

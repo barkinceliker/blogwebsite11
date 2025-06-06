@@ -1,19 +1,16 @@
 
 import AdminLoginForm from '@/components/admin/AdminLoginForm';
-// import { isAuthenticated } from '@/lib/auth'; // Yönlendirme için kaldırıldı
-// import { redirect } from 'next/navigation'; // Yönlendirme için kaldırıldı
+import { getSession } from '@/lib/auth';
+import type { UserSession } from '@/types';
 
-export const dynamic = 'force-dynamic'; // Ensures dynamic rendering due to cookie usage
+export const dynamic = 'force-dynamic'; 
 
 export default async function AdminLoginPage() {
-  // Giriş yapmış kullanıcıyı dashboard'a yönlendirme mantığı kaldırıldı.
-  // if (await isAuthenticated()) {
-  //   redirect('/admin/dashboard');
-  // }
+  const session: UserSession | null = await getSession();
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10 p-4">
-      <AdminLoginForm />
+      <AdminLoginForm currentSession={session} />
     </div>
   );
 }
