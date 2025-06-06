@@ -76,6 +76,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 src={post.imageUrl}
                 alt={post.title}
                 fill
+                sizes="100vw"
                 style={{ objectFit: 'cover' }}
                 priority
                 data-ai-hint={post.dataAiHint || "blog header image"}

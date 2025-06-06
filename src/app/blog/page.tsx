@@ -29,6 +29,7 @@ export default function BlogPage() {
                     src={post.imageUrl}
                     alt={post.title}
                     fill
+                    sizes="100vw"
                     style={{ objectFit: 'cover' }}
                     className="transition-transform duration-500 group-hover:scale-105"
                     data-ai-hint={post.dataAiHint || "blog article image"}

@@ -20,6 +20,7 @@ export default function AboutSectionPreview() {
               src="https://placehold.co/400x600.png" 
               alt="Barkın Çeliker"
               fill
+              sizes="100vw"
               style={{ objectFit: "cover" }}
               data-ai-hint="student working computer"
             />

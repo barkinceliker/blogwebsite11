@@ -26,6 +26,7 @@ export default function ProjectsPage() {
                 src={project.imageUrl}
                 alt={project.title}
                 fill
+                sizes="100vw"
                 style={{ objectFit: 'cover' }}
                 className="transition-transform duration-500 group-hover:scale-105"
                 data-ai-hint={project.dataAiHint || "project screenshot"}

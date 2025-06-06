@@ -24,6 +24,7 @@ export default function ProjectsSectionPreview() {
                 src={project.imageUrl}
                 alt={project.title}
                 fill
+                sizes="100vw"
                 style={{ objectFit: 'cover' }}
                 data-ai-hint={project.dataAiHint || "technology project"}
               />

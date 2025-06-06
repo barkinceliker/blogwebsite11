@@ -33,6 +33,7 @@ export default function HeroSection() {
             src="https://placehold.co/600x400.png"
             alt="Barkın Çeliker - Data Analyst"
             fill
+            sizes="100vw"
             style={{ objectFit: 'cover' }}
             priority
             data-ai-hint="professional portrait technology"
