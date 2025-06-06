@@ -24,18 +24,15 @@ export const ADMIN_NAV_LINKS = [
   { href: "/admin/dashboard/blog", label: "Blog Posts" },
   { href: "/admin/dashboard/skills", label: "Skills" },
   { href: "/admin/dashboard/contact", label: "Messages" },
+  { href: "/admin/dashboard/cv", label: "CV Management" },
   { href: "/admin/dashboard/settings", label: "Settings"},
 ];
 
-// Sample data previously here is now managed in Firestore.
-// The types for these (Project, BlogPost, Skill, AboutMeContent, ContactMessage)
-// are defined in src/types/index.ts.
-// Admin panel and public pages will fetch data from Firestore via adminActions.ts.
-
-// Default About Me content, can be used if Firestore fetch fails or for initial setup
 export const DEFAULT_ABOUT_ME_CONTENT = {
   greeting: "Hello, I'm Barkın Çeliker",
   introduction: "I am a 3rd-year Management Information Systems (Yönetim Bilişim Sistemleri - YBS) student at Yaşar University, passionate about data analysis, business intelligence, and leveraging technology to solve real-world problems. My journey in YBS has equipped me with a strong foundation in both business processes and information technology, with a particular focus on how data can drive decision-making and innovation.",
   mission: "My goal is to transform raw data into actionable insights, helping organizations understand their performance, identify opportunities, and make informed strategic choices. I am constantly exploring new tools and techniques in the data science field to enhance my analytical capabilities.",
   skillsSummary: "I have hands-on experience with Python for data manipulation, SQL for database querying, and tools like Tableau for data visualization. I am eager to apply my skills in a professional setting and contribute to data-driven projects."
 };
+
+export const CV_FILENAME = "Barkin_Celiker_CV.pdf";

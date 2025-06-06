@@ -4,12 +4,14 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { login as loginUser, logout as logoutUser } from '@/lib/auth';
-import type { Project, BlogPost, AboutMeContent, Skill, ContactMessage } from '@/types';
+import type { Project, BlogPost, AboutMeContent, Skill, ContactMessage, CvInfo } from '@/types';
 import { firestore } from '@/lib/firebase';
 import {
   collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, query, where, orderBy, Timestamp, setDoc
 } from 'firebase/firestore';
-import { DEFAULT_ABOUT_ME_CONTENT } from '@/lib/constants';
+import { DEFAULT_ABOUT_ME_CONTENT, CV_FILENAME } from '@/lib/constants';
+import fs from 'fs';
+import path from 'path';
 
 // Helper to convert Firestore Timestamps to ISO strings if they exist
 const convertTimestamps = (data: any) => {
@@ -45,7 +47,6 @@ export async function getProjects(): Promise<Project[]> {
       id: docSnap.id,
       ...convertTimestamps(docSnap.data()),
     } as Project));
-    console.log('[Server Action] getProjects fetched from Firestore:', projectsList.length);
     return projectsList;
   } catch (error) {
     console.error("[Server Action] Error fetching projects from Firestore:", error);
@@ -58,10 +59,8 @@ export async function getProjectById(id: string): Promise<Project | undefined> {
     const projectDocRef = doc(firestore, 'projects', id);
     const docSnap = await getDoc(projectDocRef);
     if (docSnap.exists()) {
-      console.log(`[Server Action] getProjectById fetched for id: ${id}`);
       return { id: docSnap.id, ...convertTimestamps(docSnap.data()) } as Project;
     }
-    console.log(`[Server Action] No project found with id: ${id}`);
     return undefined;
   } catch (error) {
     console.error(`[Server Action] Error fetching project ${id} from Firestore:`, error);
@@ -86,19 +85,16 @@ export async function createProject(formData: FormData): Promise<{ success: bool
     dataAiHint: title.toLowerCase().split(' ').slice(0,2).join(' ') || "new project",
     createdAt: Timestamp.now()
   };
-  console.log('[Server Action] Attempting to create project with data:', newProjectData);
   try {
     const docRef = await addDoc(collection(firestore, 'projects'), newProjectData);
     const createdProject = { id: docRef.id, ...newProjectData, createdAt: newProjectData.createdAt.toDate().toISOString() } as Project;
-    console.log('[Server Action] createProject successful in Firestore:', createdProject);
     revalidatePath('/admin/dashboard/projects');
     revalidatePath('/projects');
     revalidatePath('/');
     return { success: true, data: createdProject };
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Server Action] Error creating project in Firestore:", error);
-    const errorMessage = (error instanceof Error) ? error.message : String(error);
-    return { success: false, error: `Failed to create project in Firestore: ${errorMessage}` };
+    return { success: false, error: error.message || `Failed to create project in Firestore` };
   }
 }
 
@@ -118,38 +114,33 @@ export async function updateProject(id: string, formData: FormData): Promise<{ s
     imageUrl: imageUrl || 'https://placehold.co/600x400.png',
     tags: tags ? tags.split(',').map(t => t.trim()) : [],
     dataAiHint: title.toLowerCase().split(' ').slice(0,2).join(' ') || "updated project"
+    // createdAt will not be updated, existing value remains
   };
-  console.log(`[Server Action] Attempting to update project ${id} with data:`, updatedProjectData);
   try {
     await updateDoc(projectDocRef, updatedProjectData);
-    const updatedProject = {id, ...updatedProjectData } as Project;
-    console.log(`[Server Action] updateProject successful in Firestore for id: ${id}`);
+    const updatedProject = {id, ...updatedProjectData } as Project; // This doesn't include createdAt
     revalidatePath('/admin/dashboard/projects');
     revalidatePath(`/admin/dashboard/projects/edit/${id}`);
     revalidatePath('/projects');
     revalidatePath('/');
     return { success: true, data: updatedProject };
-  } catch (error) {
+  } catch (error: any) {
     console.error(`[Server Action] Error updating project ${id} in Firestore:`, error);
-    const errorMessage = (error instanceof Error) ? error.message : String(error);
-    return { success: false, error: `Failed to update project ${id} in Firestore: ${errorMessage}` };
+    return { success: false, error: error.message || `Failed to update project ${id} in Firestore` };
   }
 }
 
 export async function deleteProject(id: string): Promise<{ success: boolean; error?: string }> {
-  console.log(`[Server Action] Attempting to delete project ${id}`);
   try {
     const projectDocRef = doc(firestore, 'projects', id);
     await deleteDoc(projectDocRef);
-    console.log(`[Server Action] deleteProject successful in Firestore for id: ${id}`);
     revalidatePath('/admin/dashboard/projects');
     revalidatePath('/projects');
     revalidatePath('/');
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error(`[Server Action] Error deleting project ${id} from Firestore:`, error);
-    const errorMessage = (error instanceof Error) ? error.message : String(error);
-    return { success: false, error: `Failed to delete project ${id} from Firestore: ${errorMessage}` };
+    return { success: false, error: error.message || `Failed to delete project ${id} from Firestore` };
   }
 }
 
@@ -163,7 +154,6 @@ export async function getBlogPosts(): Promise<BlogPost[]> {
       id: docSnap.id,
       ...convertTimestamps(docSnap.data()),
     } as BlogPost));
-    console.log('[Server Action] getBlogPosts fetched from Firestore:', postsList.length);
     return postsList;
   } catch (error) {
     console.error("[Server Action] Error fetching blog posts from Firestore:", error);
@@ -176,10 +166,8 @@ export async function getBlogPostById(id: string): Promise<BlogPost | undefined>
     const postDocRef = doc(firestore, 'blogPosts', id);
     const docSnap = await getDoc(postDocRef);
     if (docSnap.exists()) {
-      console.log(`[Server Action] getBlogPostById fetched for id: ${id}`);
       return { id: docSnap.id, ...convertTimestamps(docSnap.data()) } as BlogPost;
     }
-    console.log(`[Server Action] No blog post found with id: ${id}`);
     return undefined;
   } catch (error) {
     console.error(`[Server Action] Error fetching blog post ${id} from Firestore:`, error);
@@ -194,10 +182,8 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | undefi
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
       const docSnap = querySnapshot.docs[0];
-      console.log(`[Server Action] getBlogPostBySlug fetched for slug: ${slug}`);
       return { id: docSnap.id, ...convertTimestamps(docSnap.data()) } as BlogPost;
     }
-    console.log(`[Server Action] No blog post found with slug: ${slug}`);
     return undefined;
   } catch (error) {
     console.error(`[Server Action] Error fetching blog post by slug ${slug} from Firestore:`, error);
@@ -238,20 +224,17 @@ export async function createBlogPost(formData: FormData): Promise<{ success: boo
     tags: tags ? tags.split(',').map(t => t.trim()) : [],
     dataAiHint: title.toLowerCase().split(' ').slice(0,2).join(' ') || "new blog"
   };
-  console.log('[Server Action] Attempting to create blog post with data:', newPostData);
   try {
     const docRef = await addDoc(collection(firestore, 'blogPosts'), newPostData);
     const createdPost = { ...newPostData, id: docRef.id, date: newPostData.date.toDate().toISOString() } as BlogPost;
-    console.log('[Server Action] createBlogPost successful in Firestore:', createdPost);
     revalidatePath('/admin/dashboard/blog');
     revalidatePath('/blog');
     revalidatePath(`/blog/${slug}`);
     revalidatePath('/');
     return { success: true, data: createdPost };
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Server Action] Error creating blog post in Firestore:", error);
-    const errorMessage = (error instanceof Error) ? error.message : String(error);
-    return { success: false, error: `Failed to create blog post in Firestore: ${errorMessage}` };
+    return { success: false, error: error.message || `Failed to create blog post in Firestore` };
   }
 }
 
@@ -288,42 +271,36 @@ export async function updateBlogPost(id: string, formData: FormData): Promise<{ 
     tags: tags ? tags.split(',').map(t => t.trim()) : [],
     dataAiHint: title.toLowerCase().split(' ').slice(0,2).join(' ') || "updated blog"
   };
-  console.log(`[Server Action] Attempting to update blog post ${id} with data:`, updatedPostData);
   try {
     await updateDoc(postDocRef, updatedPostData);
     const updatedPost = { ...updatedPostData, id, date: updatedPostData.date.toDate().toISOString() } as BlogPost;
-    console.log(`[Server Action] updateBlogPost successful in Firestore for id: ${id}`);
     revalidatePath('/admin/dashboard/blog');
     revalidatePath(`/admin/dashboard/blog/edit/${id}`);
     revalidatePath('/blog');
     revalidatePath(`/blog/${slug}`);
     revalidatePath('/');
     return { success: true, data: updatedPost };
-  } catch (error) {
+  } catch (error: any) {
     console.error(`[Server Action] Error updating blog post ${id} in Firestore:`, error);
-    const errorMessage = (error instanceof Error) ? error.message : String(error);
-    return { success: false, error: `Failed to update blog post ${id} in Firestore: ${errorMessage}` };
+    return { success: false, error: error.message || `Failed to update blog post ${id} in Firestore` };
   }
 }
 
 export async function deleteBlogPost(id: string): Promise<{ success: boolean; error?: string }> {
-  console.log(`[Server Action] Attempting to delete blog post ${id}`);
   try {
     const postDocRef = doc(firestore, 'blogPosts', id);
     const postSnap = await getDoc(postDocRef);
     const slug = postSnap.exists() ? (postSnap.data() as BlogPost).slug : undefined;
 
     await deleteDoc(postDocRef);
-    console.log(`[Server Action] deleteBlogPost successful in Firestore for id: ${id}`);
     revalidatePath('/admin/dashboard/blog');
     revalidatePath('/blog');
     if (slug) revalidatePath(`/blog/${slug}`);
     revalidatePath('/');
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error(`[Server Action] Error deleting blog post ${id} from Firestore:`, error);
-    const errorMessage = (error instanceof Error) ? error.message : String(error);
-    return { success: false, error: `Failed to delete blog post ${id} from Firestore: ${errorMessage}` };
+    return { success: false, error: error.message || `Failed to delete blog post ${id} from Firestore` };
   }
 }
 
@@ -335,10 +312,8 @@ export async function getAboutMeContent(): Promise<AboutMeContent> {
     const aboutMeDocRef = doc(firestore, ABOUT_ME_DOC_PATH);
     const docSnap = await getDoc(aboutMeDocRef);
     if (docSnap.exists()) {
-      console.log('[Server Action] getAboutMeContent fetched from Firestore');
       return docSnap.data() as AboutMeContent;
     }
-    console.log('[Server Action] AboutMeContent not found in Firestore, returning default.');
     return DEFAULT_ABOUT_ME_CONTENT;
   } catch (error) {
     console.error("[Server Action] Error fetching AboutMeContent from Firestore:", error);
@@ -356,19 +331,16 @@ export async function updateAboutMeContent(formData: FormData): Promise<{ succes
     return { success: false, error: "All fields for About Me are required." };
   }
   const aboutMeData: AboutMeContent = { greeting, introduction, mission, skillsSummary };
-  console.log('[Server Action] Attempting to update AboutMeContent with data:', aboutMeData);
   try {
     const aboutMeDocRef = doc(firestore, ABOUT_ME_DOC_PATH);
     await setDoc(aboutMeDocRef, aboutMeData, { merge: true });
-    console.log('[Server Action] updateAboutMeContent successful in Firestore:', aboutMeData);
     revalidatePath('/admin/dashboard/about');
     revalidatePath('/about');
     revalidatePath('/');
     return { success: true, data: aboutMeData };
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Server Action] Error updating AboutMeContent in Firestore:", error);
-    const errorMessage = (error instanceof Error) ? error.message : String(error);
-    return { success: false, error: `Failed to update About Me content in Firestore: ${errorMessage}` };
+    return { success: false, error: error.message || `Failed to update About Me content in Firestore` };
   }
 }
 
@@ -382,7 +354,6 @@ export async function getContactMessages(): Promise<ContactMessage[]> {
       id: docSnap.id,
       ...convertTimestamps(docSnap.data()),
     } as ContactMessage));
-    console.log('[Server Action] getContactMessages fetched from Firestore:', messagesList.length);
     return messagesList;
   } catch (error) {
     console.error("[Server Action] Error fetching contact messages from Firestore:", error);
@@ -407,16 +378,13 @@ export async function submitContactForm(formData: FormData): Promise<{ success: 
     message,
     receivedAt: Timestamp.now()
   };
-  console.log('[Server Action] Attempting to submit contact form with data:', newMessageData);
   try {
     await addDoc(collection(firestore, 'contactMessages'), newMessageData);
-    console.log(`[Server Action] New contact message from ${name} (${email}) saved to Firestore.`);
     revalidatePath('/admin/dashboard/contact');
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Server Action] Error submitting contact form to Firestore:", error);
-    const errorMessage = (error instanceof Error) ? error.message : String(error);
-    return { success: false, error: `Failed to submit contact message to Firestore: ${errorMessage}` };
+    return { success: false, error: error.message || `Failed to submit contact message to Firestore` };
   }
 }
 
@@ -424,12 +392,12 @@ export async function submitContactForm(formData: FormData): Promise<{ success: 
 export async function getSkills(): Promise<Skill[]> {
   try {
     const skillsCol = collection(firestore, 'skills');
-    const skillsSnapshot = await getDocs(skillsCol);
+    const q = query(skillsCol, orderBy('name', 'asc')); // Order by name for consistency
+    const skillsSnapshot = await getDocs(q);
     const skillsList = skillsSnapshot.docs.map(docSnap => ({
       id: docSnap.id,
       ...docSnap.data(),
     } as Skill));
-    console.log('[Server Action] getSkills fetched from Firestore:', skillsList.length);
     return skillsList;
   } catch (error) {
     console.error("[Server Action] Error fetching skills from Firestore:", error);
@@ -442,10 +410,8 @@ export async function getSkillById(id: string): Promise<Skill | undefined> {
     const skillDocRef = doc(firestore, 'skills', id);
     const docSnap = await getDoc(skillDocRef);
     if (docSnap.exists()) {
-      console.log(`[Server Action] getSkillById fetched for id: ${id}`);
       return { id: docSnap.id, ...docSnap.data() } as Skill;
     }
-    console.log(`[Server Action] No skill found with id: ${id}`);
     return undefined;
   } catch (error) {
     console.error(`[Server Action] Error fetching skill ${id} from Firestore:`, error);
@@ -469,21 +435,18 @@ export async function createSkill(formData: FormData): Promise<{ success: boolea
   const newSkillData: Omit<Skill, 'id'> = {
     name,
     level,
-    icon: icon as any // Assuming icon is a LucideIcon name string
+    icon: icon as any
   };
-  console.log('[Server Action] Attempting to create skill with data:', newSkillData);
   try {
     const docRef = await addDoc(collection(firestore, 'skills'), newSkillData);
     const createdSkill = { ...newSkillData, id: docRef.id } as Skill;
-    console.log('[Server Action] createSkill successful in Firestore:', createdSkill);
     revalidatePath('/admin/dashboard/skills');
     revalidatePath('/about');
     revalidatePath('/');
     return { success: true, data: createdSkill };
-  } catch (error) {
+  } catch (error: any) {
     console.error("[Server Action] Error creating skill in Firestore:", error);
-    const errorMessage = (error instanceof Error) ? error.message : String(error);
-    return { success: false, error: `Failed to create skill in Firestore: ${errorMessage}` };
+    return { success: false, error: error.message || `Failed to create skill in Firestore` };
   }
 }
 
@@ -504,40 +467,94 @@ export async function updateSkill(id: string, formData: FormData): Promise<{ suc
   const updatedSkillData: Omit<Skill, 'id'> = {
     name,
     level,
-    icon: icon as any // Assuming icon is a LucideIcon name string
+    icon: icon as any
   };
-  console.log(`[Server Action] Attempting to update skill ${id} with data:`, updatedSkillData);
   try {
     await updateDoc(skillDocRef, updatedSkillData);
     const updatedSkill = { ...updatedSkillData, id } as Skill;
-    console.log(`[Server Action] updateSkill successful in Firestore for id: ${id}`);
     revalidatePath('/admin/dashboard/skills');
     revalidatePath(`/admin/dashboard/skills/edit/${id}`);
     revalidatePath('/about');
     revalidatePath('/');
     return { success: true, data: updatedSkill };
-  } catch (error) {
+  } catch (error: any) {
     console.error(`[Server Action] Error updating skill ${id} in Firestore:`, error);
-    const errorMessage = (error instanceof Error) ? error.message : String(error);
-    return { success: false, error: `Failed to update skill ${id} in Firestore: ${errorMessage}` };
+    return { success: false, error: error.message || `Failed to update skill ${id} in Firestore` };
   }
 }
 
 export async function deleteSkill(id: string): Promise<{ success: boolean; error?: string }> {
-  console.log(`[Server Action] Attempting to delete skill ${id}`);
   try {
     const skillDocRef = doc(firestore, 'skills', id);
     await deleteDoc(skillDocRef);
-    console.log(`[Server Action] deleteSkill successful in Firestore for id: ${id}`);
     revalidatePath('/admin/dashboard/skills');
     revalidatePath('/about');
     revalidatePath('/');
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error(`[Server Action] Error deleting skill ${id} from Firestore:`, error);
-    const errorMessage = (error instanceof Error) ? error.message : String(error);
-    return { success: false, error: `Failed to delete skill ${id} from Firestore: ${errorMessage}` };
+    return { success: false, error: error.message || `Failed to delete skill ${id} from Firestore` };
   }
 }
 
-    
+
+// CV Management Actions
+const CV_PUBLIC_PATH = path.join(process.cwd(), 'public', CV_FILENAME);
+
+export async function getCvInfo(): Promise<CvInfo> {
+  try {
+    const exists = fs.existsSync(CV_PUBLIC_PATH);
+    if (exists) {
+      return {
+        filename: CV_FILENAME,
+        exists: true,
+        downloadUrl: `/${CV_FILENAME}`, // Relative URL for public folder
+      };
+    }
+    return { filename: null, exists: false, downloadUrl: null };
+  } catch (error: any) {
+    console.error("[Server Action] Error getting CV info:", error);
+    return { filename: null, exists: false, downloadUrl: null, error: error.message };
+  }
+}
+
+export async function uploadCv(formData: FormData): Promise<{ success: boolean; error?: string }> {
+  const file = formData.get('cvFile') as File | null;
+
+  if (!file) {
+    return { success: false, error: 'No file uploaded.' };
+  }
+  if (file.type !== 'application/pdf') {
+    return { success: false, error: 'Invalid file type. Please upload a PDF.' };
+  }
+
+  try {
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    fs.writeFileSync(CV_PUBLIC_PATH, buffer);
+    console.log(`[Server Action] CV uploaded successfully to: ${CV_PUBLIC_PATH}`);
+    revalidatePath('/admin/dashboard/cv');
+    // Revalidate home if hero section might change based on CV existence
+    revalidatePath('/');
+    return { success: true };
+  } catch (error: any) {
+    console.error("[Server Action] Error uploading CV:", error);
+    return { success: false, error: error.message || 'Failed to upload CV.' };
+  }
+}
+
+export async function deleteCv(): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (fs.existsSync(CV_PUBLIC_PATH)) {
+      fs.unlinkSync(CV_PUBLIC_PATH);
+      console.log(`[Server Action] CV deleted successfully from: ${CV_PUBLIC_PATH}`);
+      revalidatePath('/admin/dashboard/cv');
+      revalidatePath('/');
+      return { success: true };
+    }
+    return { success: false, error: 'CV file not found to delete.' };
+  } catch (error: any) {
+    console.error("[Server Action] Error deleting CV:", error);
+    return { success: false, error: error.message || 'Failed to delete CV.' };
+  }
+}

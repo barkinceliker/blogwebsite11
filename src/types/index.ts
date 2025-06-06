@@ -8,13 +8,14 @@ export interface Project {
   imageUrl: string;
   tags: string[];
   dataAiHint?: string;
+  createdAt?: string; // Firestore timestamp as ISO string
 }
 
 export interface BlogPost {
   id: string;
   slug: string;
   title: string;
-  date: string;
+  date: string; // Firestore timestamp as ISO string
   excerpt: string;
   imageUrl: string;
   content: string; // HTML content
@@ -23,10 +24,10 @@ export interface BlogPost {
 }
 
 export interface Skill {
-  id: string; // Added id field
+  id: string;
   name: string;
   level: number; // Percentage 0-100
-  icon: keyof typeof import("lucide-react") | string; // Lucide icon name or path to custom SVG
+  icon: keyof typeof import("lucide-react") | string;
 }
 
 export interface ContactMessage {
@@ -34,7 +35,7 @@ export interface ContactMessage {
   name: string;
   email: string;
   message: string;
-  receivedAt: string; // ISO date string
+  receivedAt: string; // Firestore timestamp as ISO string
 }
 
 export interface UserSession {
@@ -49,4 +50,11 @@ export interface AboutMeContent {
   introduction: string;
   mission: string;
   skillsSummary: string;
+}
+
+export interface CvInfo {
+    filename: string | null;
+    exists: boolean;
+    downloadUrl: string | null;
+    error?: string;
 }
