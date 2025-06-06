@@ -1,6 +1,6 @@
 
 import { cookies } from 'next/headers';
-import { ADMIN_EMAIL, ADMIN_PASSWORD, AUTH_COOKIE_NAME } from './constants';
+import { ADMIN_EMAIL, ADMIN_PASSWORD, AUTH_COOKIE_NAME, AUTHOR_NAME } from './constants';
 import type { UserSession } from '@/types';
 
 export async function login(formData: FormData): Promise<{ success: boolean; error?: string }> {
@@ -8,7 +8,7 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
   const password = formData.get('password') as string;
 
   if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-    const sessionData: UserSession = { email, name: 'Admin User', isAuthenticated: true, loginTimestamp: Date.now() };
+    const sessionData: UserSession = { email, name: AUTHOR_NAME, isAuthenticated: true, loginTimestamp: Date.now() };
     const cookieStore = await cookies();
     cookieStore.set(AUTH_COOKIE_NAME, JSON.stringify(sessionData), {
       httpOnly: true,
