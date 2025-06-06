@@ -47,8 +47,8 @@ export default function AdminLoginForm({ currentSession }: AdminLoginFormProps) 
         title: 'Login Successful!',
         description: `Welcome, ${result.name}!`,
       });
-      router.push('/admin/dashboard'); // Go to dashboard
-      router.refresh(); // Refresh server components and fetch new data
+      // Use router.replace to ensure a full navigation and layout re-evaluation
+      router.replace('/admin/dashboard');
     } else {
       toast({
         title: 'Login Failed',
@@ -60,11 +60,9 @@ export default function AdminLoginForm({ currentSession }: AdminLoginFormProps) 
 
   const onLogout = async () => {
     await handleLogout();
-    // handleLogout server action already redirects to /admin.
-    // A router.refresh() might be needed if the layout doesn't update immediately
-    // after redirect, but typically the redirect handles the state change.
-    // Forcing a full page reload for logout to ensure clean state:
-    window.location.href = '/admin'; 
+    // handleLogout server action already redirects.
+    // Forcing a full page reload for logout ensures clean state on the /admin page.
+    window.location.href = '/admin';
   };
 
   if (currentSession?.isAuthenticated) {

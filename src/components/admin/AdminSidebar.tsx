@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation'; // Added useRouter
+import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ADMIN_NAV_LINKS, AUTHOR_NAME } from '@/lib/constants';
@@ -26,7 +26,6 @@ interface AdminSidebarProps {
 
 export default function AdminSidebar({ session }: AdminSidebarProps) {
   const pathname = usePathname();
-  const router = useRouter(); // Initialize router
 
   const onLogout = async () => {
     await handleLogout();
@@ -40,8 +39,8 @@ export default function AdminSidebar({ session }: AdminSidebarProps) {
     <aside className="fixed top-0 left-0 z-40 w-64 h-screen pt-16 transition-transform -translate-x-full md:translate-x-0 bg-sidebar text-sidebar-foreground border-r border-sidebar-border" aria-label="Sidebar">
       <div className="flex flex-col h-full">
         <div className="p-4 border-b border-sidebar-border">
-          <Link 
-            href={session?.isAuthenticated ? "/admin/dashboard" : "/admin"} 
+          <Link
+            href={session?.isAuthenticated ? "/admin/dashboard" : "/admin"}
             className="flex items-center space-x-2 text-xl font-headline font-semibold text-sidebar-primary-foreground"
           >
             <CodeXml className="h-7 w-7 text-sidebar-primary" />
