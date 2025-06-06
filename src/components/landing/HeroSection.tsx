@@ -3,11 +3,12 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Download } from 'lucide-react';
 import Image from 'next/image';
-import { getAboutMeContent } from '@/lib/actions/adminActions'; // Fetch dynamic content
-import type { AboutMeContent } from '@/types';
+import { getAboutMeContent, getCvInfo } from '@/lib/actions/adminActions'; // Fetch dynamic content
+import type { AboutMeContent, CvInfo } from '@/types';
 
 export default async function HeroSection() {
   const aboutMeData: AboutMeContent = await getAboutMeContent();
+  const cvInfo: CvInfo = await getCvInfo();
 
   return (
     <section className="bg-gradient-to-br from-background to-secondary py-20 md:py-32">
@@ -25,11 +26,13 @@ export default async function HeroSection() {
                 Projelerimi Görüntüle <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-xl transition-shadow">
-              <a href="/Barkin_Celiker_CV.pdf" download="Barkın_Çeliker_CV.pdf">
-                CV İndir <Download className="ml-2 h-5 w-5" />
-              </a>
-            </Button>
+            {cvInfo.exists && cvInfo.downloadUrl && (
+              <Button asChild variant="outline" size="lg" className="shadow-lg hover:shadow-xl transition-shadow">
+                <a href={cvInfo.downloadUrl} download={cvInfo.filename || "Barkın_Çeliker_CV.pdf"}>
+                  CV İndir <Download className="ml-2 h-5 w-5" />
+                </a>
+              </Button>
+            )}
           </div>
         </div>
         <div className="relative h-80 md:h-[450px] rounded-xl overflow-hidden shadow-2xl">
