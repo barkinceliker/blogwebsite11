@@ -94,7 +94,7 @@ export async function createProject(formData: FormData): Promise<{ success: bool
     return { success: true, data: createdProject };
   } catch (error: any) {
     console.error("[Server Action] Error creating project in Firestore:", error);
-    return { success: false, error: error.message || `Failed to create project in Firestore` };
+    return { success: false, error: error.message || `Failed to create project in Firestore. Details: ${error.toString()}` };
   }
 }
 
@@ -126,7 +126,7 @@ export async function updateProject(id: string, formData: FormData): Promise<{ s
     return { success: true, data: updatedProject };
   } catch (error: any) {
     console.error(`[Server Action] Error updating project ${id} in Firestore:`, error);
-    return { success: false, error: error.message || `Failed to update project ${id} in Firestore` };
+    return { success: false, error: error.message || `Failed to update project ${id} in Firestore. Details: ${error.toString()}` };
   }
 }
 
@@ -140,7 +140,7 @@ export async function deleteProject(id: string): Promise<{ success: boolean; err
     return { success: true };
   } catch (error: any) {
     console.error(`[Server Action] Error deleting project ${id} from Firestore:`, error);
-    return { success: false, error: error.message || `Failed to delete project ${id} from Firestore` };
+    return { success: false, error: error.message || `Failed to delete project ${id} from Firestore. Details: ${error.toString()}` };
   }
 }
 
@@ -234,7 +234,7 @@ export async function createBlogPost(formData: FormData): Promise<{ success: boo
     return { success: true, data: createdPost };
   } catch (error: any) {
     console.error("[Server Action] Error creating blog post in Firestore:", error);
-    return { success: false, error: error.message || `Failed to create blog post in Firestore` };
+    return { success: false, error: error.message || `Failed to create blog post in Firestore. Details: ${error.toString()}` };
   }
 }
 
@@ -282,7 +282,7 @@ export async function updateBlogPost(id: string, formData: FormData): Promise<{ 
     return { success: true, data: updatedPost };
   } catch (error: any) {
     console.error(`[Server Action] Error updating blog post ${id} in Firestore:`, error);
-    return { success: false, error: error.message || `Failed to update blog post ${id} in Firestore` };
+    return { success: false, error: error.message || `Failed to update blog post ${id} in Firestore. Details: ${error.toString()}` };
   }
 }
 
@@ -300,7 +300,7 @@ export async function deleteBlogPost(id: string): Promise<{ success: boolean; er
     return { success: true };
   } catch (error: any) {
     console.error(`[Server Action] Error deleting blog post ${id} from Firestore:`, error);
-    return { success: false, error: error.message || `Failed to delete blog post ${id} from Firestore` };
+    return { success: false, error: error.message || `Failed to delete blog post ${id} from Firestore. Details: ${error.toString()}` };
   }
 }
 
@@ -340,7 +340,7 @@ export async function updateAboutMeContent(formData: FormData): Promise<{ succes
     return { success: true, data: aboutMeData };
   } catch (error: any) {
     console.error("[Server Action] Error updating AboutMeContent in Firestore:", error);
-    return { success: false, error: error.message || `Failed to update About Me content in Firestore` };
+    return { success: false, error: error.message || `Failed to update About Me content in Firestore. Details: ${error.toString()}` };
   }
 }
 
@@ -384,7 +384,7 @@ export async function submitContactForm(formData: FormData): Promise<{ success: 
     return { success: true };
   } catch (error: any) {
     console.error("[Server Action] Error submitting contact form to Firestore:", error);
-    return { success: false, error: error.message || `Failed to submit contact message to Firestore` };
+    return { success: false, error: error.message || `Failed to submit contact message to Firestore. Details: ${error.toString()}` };
   }
 }
 
@@ -446,7 +446,7 @@ export async function createSkill(formData: FormData): Promise<{ success: boolea
     return { success: true, data: createdSkill };
   } catch (error: any) {
     console.error("[Server Action] Error creating skill in Firestore:", error);
-    return { success: false, error: error.message || `Failed to create skill in Firestore` };
+    return { success: false, error: error.message || `Failed to create skill in Firestore. Details: ${error.toString()}` };
   }
 }
 
@@ -479,7 +479,7 @@ export async function updateSkill(id: string, formData: FormData): Promise<{ suc
     return { success: true, data: updatedSkill };
   } catch (error: any) {
     console.error(`[Server Action] Error updating skill ${id} in Firestore:`, error);
-    return { success: false, error: error.message || `Failed to update skill ${id} in Firestore` };
+    return { success: false, error: error.message || `Failed to update skill ${id} in Firestore. Details: ${error.toString()}` };
   }
 }
 
@@ -493,13 +493,14 @@ export async function deleteSkill(id: string): Promise<{ success: boolean; error
     return { success: true };
   } catch (error: any) {
     console.error(`[Server Action] Error deleting skill ${id} from Firestore:`, error);
-    return { success: false, error: error.message || `Failed to delete skill ${id} from Firestore` };
+    return { success: false, error: error.message || `Failed to delete skill ${id} from Firestore. Details: ${error.toString()}` };
   }
 }
 
 
 // CV Management Actions
-const CV_PUBLIC_PATH = path.join(process.cwd(), 'public', CV_FILENAME);
+const PUBLIC_DIR = path.join(process.cwd(), 'public');
+const CV_PUBLIC_PATH = path.join(PUBLIC_DIR, CV_FILENAME);
 
 export async function getCvInfo(): Promise<CvInfo> {
   try {
@@ -529,6 +530,12 @@ export async function uploadCv(formData: FormData): Promise<{ success: boolean; 
   }
 
   try {
+    // Ensure the public directory exists
+    if (!fs.existsSync(PUBLIC_DIR)) {
+      fs.mkdirSync(PUBLIC_DIR, { recursive: true });
+      console.log(`[Server Action] Created public directory at: ${PUBLIC_DIR}`);
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
     fs.writeFileSync(CV_PUBLIC_PATH, buffer);
@@ -558,3 +565,4 @@ export async function deleteCv(): Promise<{ success: boolean; error?: string }> 
     return { success: false, error: error.message || 'Failed to delete CV.' };
   }
 }
+
