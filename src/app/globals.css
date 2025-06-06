@@ -8,15 +8,64 @@ body {
 
 @layer base {
   :root {
-    /* Black & Gold Theme */
+    /* Light Theme (Based on PRD) */
+    --background: 240 13% 95%; /* Light gray (#F0F0F5) */
+    --foreground: 240 10% 20%; /* Dark gray text for readability */
+
+    --card: 0 0% 100%; /* White cards */
+    --card-foreground: 240 10% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 15%;
+
+    --primary: 267 100% 67%; /* Saturated purple (#A054FF) */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
+
+    --secondary: 240 10% 90%; /* Lighter gray for secondary elements */
+    --secondary-foreground: 240 10% 30%;
+
+    --muted: 240 10% 85%;
+    --muted-foreground: 240 10% 45%;
+
+    --accent: 188 40% 68%; /* Soft blue (#7EC4CF) */
+    --accent-foreground: 240 10% 15%; /* Dark text on accent */
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 10% 80%;
+    --input: 240 10% 90%;
+    --ring: 267 100% 70%;
+
+    --radius: 0.5rem;
+
+    --chart-1: 267 100% 67%; /* Primary */
+    --chart-2: 188 40% 68%;  /* Accent */
+    --chart-3: 250 80% 70%;
+    --chart-4: 200 50% 60%;
+    --chart-5: 240 10% 50%;
+
+    /* Sidebar specific theme variables (Light Theme for Admin) */
+    --sidebar-background: 240 10% 92%; /* Slightly off-white */
+    --sidebar-foreground: 240 10% 25%;
+    --sidebar-primary: 267 90% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 188 50% 60%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 240 10% 80%;
+    --sidebar-ring: 267 90% 65%;
+  }
+
+  .dark {
+    /* Dark Theme (Black & Gold) */
     --background: 220 15% 8%; /* Very dark, near black */
     --foreground: 45 50% 92%; /* Light, slightly golden off-white */
 
     --card: 220 15% 12%; /* Slightly lighter dark for cards */
-    --card-foreground: 45 50% 90%; /* Consistent with foreground */
+    --card-foreground: 45 50% 90%;
 
-    --popover: 220 15% 10%; /* Dark popover */
-    --popover-foreground: 45 50% 92%; /* Consistent with foreground */
+    --popover: 220 15% 10%;
+    --popover-foreground: 45 50% 92%;
 
     --primary: 45 90% 58%; /* Rich, vibrant gold */
     --primary-foreground: 45 90% 10%; /* Dark color for text on gold buttons */
@@ -25,25 +74,23 @@ body {
     --secondary-foreground: 45 40% 85%; /* Lighter text for secondary elements */
 
     --muted: 220 15% 25%; /* Darker muted gray */
-    --muted-foreground: 220 20% 65%; /* Muted Text Gray */
+    --muted-foreground: 220 20% 65%;
 
     --accent: 50 100% 70%; /* Brighter, slightly warmer gold for accents */
-    --accent-foreground: 50 90% 10%; /* Dark color for text on accent */
+    --accent-foreground: 50 90% 10%;
 
-    --destructive: 0 70% 55%; /* Destructive red, slightly desaturated for dark theme */
-    --destructive-foreground: 0 0% 98%; /* Light text on destructive elements */
+    --destructive: 0 70% 55%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 220 15% 30%; /* Gold-tinted dark border */
-    --input: 220 15% 20%; /* Dark input background with gold-tinted border on focus */
-    --ring: 45 90% 60%; /* Gold for rings */
+    --border: 220 15% 30%;
+    --input: 220 15% 20%;
+    --ring: 45 90% 60%;
 
-    --radius: 0.5rem;
-
-    --chart-1: 45 90% 58%; /* Gold (Primary) */
-    --chart-2: 50 100% 70%;  /* Gold (Accent) */
-    --chart-3: 35 80% 65%; /* Slightly different gold/orange */
-    --chart-4: 40 70% 45%; /* Deeper, antique gold */
-    --chart-5: 0 0% 80%;  /* Light Gray as a neutral contrast */
+    --chart-1: 45 90% 58%;
+    --chart-2: 50 100% 70%;
+    --chart-3: 35 80% 65%;
+    --chart-4: 40 70% 45%;
+    --chart-5: 0 0% 80%;
 
     /* Sidebar specific theme variables (Dark Gold Theme for Admin) */
     --sidebar-background: 220 10% 10%; /* Very Dark Slate for Admin Sidebar */
@@ -53,11 +100,8 @@ body {
     --sidebar-accent: 50 100% 70%; /* Brighter accent gold for Admin Sidebar */
     --sidebar-accent-foreground: 50 90% 10%; /* Dark text for Admin Sidebar accent */
     --sidebar-border: 220 10% 20%; /* Darker border for Admin Sidebar */
-    --sidebar-ring: 45 90% 65%; /* Admin Sidebar primary for rings */
+    --sidebar-ring: 45 90% 65%;
   }
-
-  /* Remove .dark specific overrides if the base theme is now dark */
-  /* .dark { ... } */
 }
 
 @layer base {
