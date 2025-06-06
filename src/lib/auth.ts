@@ -25,6 +25,7 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
     
     console.log(`[Auth] Querying Firestore for admin with email: "${email}"`);
     const querySnapshot = await getDocs(q);
+    console.log(`[Auth] Firestore query for email "${email}" returned ${querySnapshot.docs.length} documents.`);
 
     if (querySnapshot.empty) {
       console.log(`[Auth] No admin found in Firestore with email: "${email}"`);
@@ -33,7 +34,15 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
 
     const adminDoc = querySnapshot.docs[0];
     const adminData = adminDoc.data();
-    console.log(`[Auth] Admin data found in Firestore:`, adminData);
+    console.log(`[Auth] Admin data found in Firestore for doc ID ${adminDoc.id}:`, JSON.stringify(adminData));
+
+    if (!adminData.password) {
+      console.log(`[Auth] Password field missing in Firestore for admin with email: "${email}"`);
+      return { success: false, error: 'Admin configuration error. Password missing.' };
+    }
+    
+    console.log(`[Auth] Firestore password for "${email}": "${adminData.password}"`);
+    console.log(`[Auth] Provided password: "${password}"`);
 
     if (adminData.password === password) {
       console.log(`[Auth] Password match for email: "${email}". Login successful.`);
@@ -55,17 +64,18 @@ export async function login(formData: FormData): Promise<{ success: boolean; err
       console.log(`[Auth] Password mismatch for email: "${email}". Firestore password: "${adminData.password}", Provided password: "${password}"`);
       return { success: false, error: 'Invalid email or password' };
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('[Auth] Error during Firestore admin login:', error);
     let errorMessage = 'An unexpected error occurred during login.';
-    if (error instanceof Error) {
-        const errorCode = (error as any).code; 
-        if (errorCode === 'permission-denied') {
+    if (error.code) { // Firebase errors often have a 'code' property
+        if (error.code === 'permission-denied' || error.code === 'PERMISSION_DENIED') {
             console.error('[Auth] Firestore permission denied. Check your security rules.');
-            errorMessage = 'Firestore permission denied. Please check security rules.';
-        } else if (errorCode) {
-            errorMessage = `An unexpected error occurred: ${errorCode}. Check server logs.`;
+            errorMessage = 'Firestore permission denied. Please check security rules or Firestore setup.';
+        } else {
+            errorMessage = `An unexpected Firestore error occurred: ${error.code}. Message: ${error.message}. Check server logs.`;
         }
+    } else if (error instanceof Error) {
+        errorMessage = `An unexpected error occurred: ${error.message}. Check server logs.`;
     }
     return { success: false, error: errorMessage };
   }
@@ -101,3 +111,4 @@ export async function isAuthenticated(): Promise<boolean> {
   const session = await getSession();
   return !!session?.isAuthenticated;
 }
+
