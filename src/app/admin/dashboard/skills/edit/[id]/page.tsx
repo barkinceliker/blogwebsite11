@@ -17,6 +17,7 @@ export default async function EditSkillPage({ params }: EditSkillPageProps) {
   }
 
   const handleUpdateSkill = async (formData: FormData) => {
+    'use server';
     return updateSkill(params.id, formData);
   };
 

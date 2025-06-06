@@ -23,7 +23,7 @@ export default function HeroSection({ aboutMe }: HeroSectionProps) {
           <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
             <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-shadow">
               <Link href="/projects">
-                Projelerimi Görüntüle <ArrowRight className="ml-2 h-5 w-5" />
+                View My Projects <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
             </Button>
           </div>

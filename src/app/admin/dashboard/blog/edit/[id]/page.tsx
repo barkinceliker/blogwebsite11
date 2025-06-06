@@ -16,6 +16,7 @@ export default async function EditBlogPostPage({ params }: EditBlogPostPageProps
   }
   
   const handleUpdateBlogPost = async (formData: FormData) => {
+    'use server';
     return updateBlogPost(params.id, formData);
   };
 

@@ -3,10 +3,11 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { SITE_TITLE, SITE_DESCRIPTION } from '@/lib/constants';
 
 export const metadata: Metadata = {
-  title: 'Personal Hub - Barkın Çeliker',
-  description: 'Welcome to the personal hub of Barkın Çeliker, showcasing projects, skills, blog, and contact information.',
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
 };
 
 export default function RootLayout({

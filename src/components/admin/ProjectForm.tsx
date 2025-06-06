@@ -55,8 +55,8 @@ export default function ProjectForm({ initialData, onSubmitAction, isEditing }: 
         title: isEditing ? 'Project Updated' : 'Project Created',
         description: `Project "${result.data?.title}" has been successfully ${isEditing ? 'updated' : 'created'}.`,
       });
-      router.push('/admin/dashboard/projects'); // Redirect to projects list
-      router.refresh(); // Ensures the list is updated
+      router.push('/admin/dashboard/projects'); 
+      router.refresh(); 
     } else {
       toast({
         title: isEditing ? 'Update Failed' : 'Creation Failed',

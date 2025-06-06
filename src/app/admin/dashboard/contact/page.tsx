@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { getContactMessages } from '@/lib/actions/adminActions';
 import type { ContactMessage } from '@/types';
 import { MessageSquare, RefreshCw, Inbox } from 'lucide-react';
@@ -56,7 +55,6 @@ export default function AdminContactMessagesPage() {
       </Card>
     )
   }
-
 
   return (
     <Card className="shadow-lg">

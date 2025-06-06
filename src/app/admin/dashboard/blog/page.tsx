@@ -43,9 +43,9 @@ export default function AdminBlogPage() {
     const result = await deleteBlogPost(id);
     if (result.success) {
       toast({ title: "Blog Post Deleted", description: "The blog post has been successfully deleted." });
-      fetchBlogPosts(); // Refresh
+      fetchBlogPosts(); 
     } else {
-      toast({ title: "Error", description: result.error || "Failed to delete blog post.", variant: "destructive" });
+      toast({ title: "Error Deleting Post", description: result.error || "Failed to delete blog post.", variant: "destructive" });
     }
     setIsDeleting(null);
   };

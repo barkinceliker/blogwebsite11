@@ -51,7 +51,7 @@ export default async function AboutPage() {
                   <h3 className="text-xl font-semibold text-accent-foreground mb-2 flex items-center">
                     <GraduationCap className="mr-2 h-6 w-6" /> Education
                   </h3>
-                  <p className="text-accent-foreground/90">3rd Year Student, Management Information Systems (YBS) at Yaşar University.</p>
+                  <p className="text-accent-foreground/90">3rd Year Student, Management Information Systems (MIS) at Yaşar University.</p>
                 </div>
               </CardContent>
             </div>

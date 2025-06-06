@@ -1,4 +1,3 @@
-
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import type { Skill } from '@/types';
-import { Save, Loader2, Lightbulb } from 'lucide-react';
+import { Save, Loader2 } from 'lucide-react'; // Removed Lightbulb, not used
 import { useRouter } from 'next/navigation';
 import * as LucideIcons from 'lucide-react';
 
@@ -18,7 +17,7 @@ const skillFormSchema = z.object({
   level: z.coerce.number().min(0, {message: 'Level must be at least 0'}).max(100, {message: 'Level must be at most 100'}),
   icon: z.string().min(1, { message: 'Icon name is required (e.g., Code, BarChart3).' })
     .refine(value => Object.keys(LucideIcons).includes(value as keyof typeof LucideIcons), {
-      message: "Invalid Lucide icon name. Check available icons.",
+      message: "Invalid Lucide icon name. Check available icons at lucide.dev.",
     }),
 });
 
@@ -39,7 +38,7 @@ export default function SkillForm({ initialData, onSubmitAction, isEditing }: Sk
     defaultValues: {
       name: initialData?.name || '',
       level: initialData?.level || 0,
-      icon: initialData?.icon as string || 'Lightbulb',
+      icon: initialData?.icon as string || 'Lightbulb', // Default icon if none provided
     },
   });
 

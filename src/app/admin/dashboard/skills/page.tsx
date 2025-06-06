@@ -44,9 +44,9 @@ export default function AdminSkillsPage() {
     const result = await deleteSkill(id);
     if (result.success) {
       toast({ title: "Skill Deleted", description: "The skill has been successfully deleted." });
-      fetchSkills(); // Refresh the list
+      fetchSkills(); 
     } else {
-      toast({ title: "Error", description: result.error || "Failed to delete skill.", variant: "destructive" });
+      toast({ title: "Error Deleting Skill", description: result.error || "Failed to delete skill.", variant: "destructive" });
     }
     setIsDeleting(null);
   };

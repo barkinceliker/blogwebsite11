@@ -3,13 +3,13 @@
 import type React from 'react';
 import SectionWrapper from '@/components/SectionWrapper';
 import { Progress } from '@/components/ui/progress';
-import type { Skill } from '@/types'; // Skill tipini import ediyoruz
+import type { Skill } from '@/types'; 
 import * as LucideIcons from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Lightbulb } from 'lucide-react';
 
 interface SkillsSectionProps {
-  skills: Skill[]; // skills prop'unu tanımlıyoruz
+  skills: Skill[];
 }
 
 export default function SkillsSection({ skills }: SkillsSectionProps) {

@@ -17,7 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function AdminProjectsPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isDeleting, setIsDeleting] = useState<string | null>(null); // Store ID of project being deleted
+  const [isDeleting, setIsDeleting] = useState<string | null>(null); 
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
@@ -43,9 +43,9 @@ export default function AdminProjectsPage() {
     const result = await deleteProject(id);
     if (result.success) {
       toast({ title: "Project Deleted", description: "The project has been successfully deleted." });
-      fetchProjects(); // Refresh the list
+      fetchProjects(); 
     } else {
-      toast({ title: "Error", description: result.error || "Failed to delete project.", variant: "destructive" });
+      toast({ title: "Error Deleting Project", description: result.error || "Failed to delete project.", variant: "destructive" });
     }
     setIsDeleting(null);
   };

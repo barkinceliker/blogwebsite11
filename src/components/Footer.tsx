@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Github, Linkedin } from 'lucide-react'; // Twitter removed
+import { Github, Linkedin } from 'lucide-react';
 import { AUTHOR_NAME } from '@/lib/constants';
 
 export default function Footer() {
@@ -17,10 +17,10 @@ export default function Footer() {
           </Link>
         </div>
         <p className="text-sm mb-1">
-          &copy; {currentYear} {AUTHOR_NAME}. Tüm Hakları Saklıdır.
+          &copy; {currentYear} {AUTHOR_NAME}. All Rights Reserved.
         </p>
         <p className="text-xs">
-          Next.js & Tailwind CSS ile geliştirildi.
+          Developed with Next.js & Tailwind CSS.
         </p>
       </div>
     </footer>

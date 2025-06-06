@@ -16,9 +16,9 @@ import { Mail, Send, MapPin, Linkedin, Github } from 'lucide-react';
 import Link from 'next/link';
 
 const contactFormSchema = z.object({
-  name: z.string().min(2, { message: 'İsim en az 2 karakter olmalıdır.' }),
-  email: z.string().email({ message: 'Lütfen geçerli bir e-posta adresi girin.' }),
-  message: z.string().min(10, { message: 'Mesaj en az 10 karakter olmalıdır.' }),
+  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  email: z.string().email({ message: 'Please enter a valid email address.' }),
+  message: z.string().min(10, { message: 'Message must be at least 10 characters.' }),
 });
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
@@ -45,21 +45,21 @@ export default function ContactPage() {
 
       if (result.success) {
         toast({
-          title: 'Mesaj Gönderildi!',
-          description: "Benimle iletişime geçtiğiniz için teşekkürler. En kısa sürede geri dönüş yapacağım.",
+          title: 'Message Sent!',
+          description: "Thanks for reaching out. I'll get back to you as soon as possible.",
         });
         form.reset();
       } else {
         toast({
-          title: 'Hata',
-          description: result.error || 'Mesaj gönderilemedi. Lütfen tekrar deneyin.',
+          title: 'Error Sending Message',
+          description: result.error || 'Failed to send message. Please try again.',
           variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: 'Hata',
-        description: 'Beklenmedik bir hata oluştu. Lütfen tekrar deneyin.',
+        title: 'Error',
+        description: 'An unexpected error occurred. Please try again.',
         variant: 'destructive',
       });
     }
@@ -68,9 +68,9 @@ export default function ContactPage() {
   return (
     <SectionWrapper id="contact" className="bg-gradient-to-b from-background via-secondary to-background py-16 md:py-24">
       <header className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl font-headline font-bold text-primary">İletişime Geçin</h1>
+        <h1 className="text-4xl md:text-5xl font-headline font-bold text-primary">Get in Touch</h1>
         <p className="text-xl text-muted-foreground mt-4 max-w-2xl mx-auto">
-          Yeni projeler, yaratıcı fikirler veya vizyonlarınızın bir parçası olma fırsatlarını görüşmeye her zaman açığım.
+          I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.
         </p>
       </header>
 
@@ -79,9 +79,9 @@ export default function ContactPage() {
           <CardHeader className="bg-muted/30 p-6">
             <CardTitle className="flex items-center text-2xl font-semibold">
               <Send className="mr-3 h-7 w-7 text-primary" />
-              Doğrudan Mesaj Gönderin
+              Send a Direct Message
             </CardTitle>
-            <CardDescription className="mt-1 text-muted-foreground">Formu kullanarak bana e-posta gönderebilirsiniz. En kısa sürede yanıt vereceğim.</CardDescription>
+            <CardDescription className="mt-1 text-muted-foreground">You can email me using the form. I will respond as soon as possible.</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
             <Form {...form}>
@@ -91,9 +91,9 @@ export default function ContactPage() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-medium">Adınız Soyadınız</FormLabel>
+                      <FormLabel className="font-medium">Your Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Adınız Soyadınız" {...field} className="text-base"/>
+                        <Input placeholder="Your Full Name" {...field} className="text-base"/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -104,9 +104,9 @@ export default function ContactPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-medium">E-posta Adresiniz</FormLabel>
+                      <FormLabel className="font-medium">Your Email</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="eposta@adresiniz.com" {...field} className="text-base"/>
+                        <Input type="email" placeholder="your.email@example.com" {...field} className="text-base"/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -117,16 +117,16 @@ export default function ContactPage() {
                   name="message"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="font-medium">Mesajınız</FormLabel>
+                      <FormLabel className="font-medium">Your Message</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Mesajınızı buraya yazın..." className="min-h-[150px] text-base" {...field} />
+                        <Textarea placeholder="Write your message here..." className="min-h-[150px] text-base" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <Button type="submit" className="w-full text-lg py-3" size="lg" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? 'Gönderiliyor...' : <>Mesajı Gönder <Send className="ml-2 h-5 w-5"/></>}
+                  {form.formState.isSubmitting ? 'Sending...' : <>Send Message <Send className="ml-2 h-5 w-5"/></>}
                 </Button>
               </form>
             </Form>
@@ -137,17 +137,17 @@ export default function ContactPage() {
           <CardHeader className="bg-muted/30 p-6">
             <CardTitle className="flex items-center text-2xl font-semibold">
               <Mail className="mr-3 h-7 w-7 text-primary" />
-              Diğer Bağlantılarım
+              Other Ways to Connect
             </CardTitle>
-            <CardDescription className="mt-1 text-muted-foreground">Bana bu platformlardan da ulaşabilirsiniz.</CardDescription>
+            <CardDescription className="mt-1 text-muted-foreground">You can also reach me on these platforms.</CardDescription>
           </CardHeader>
           <CardContent className="p-6 space-y-5">
             
              <div className="flex items-center space-x-4 p-4 bg-muted/50 rounded-lg hover:shadow-md transition-shadow">
               <MapPin className="h-8 w-8 text-primary shrink-0" />
               <div>
-                <h4 className="font-semibold text-lg">Konum</h4>
-                <span className="text-muted-foreground text-base">İzmir, Türkiye</span>
+                <h4 className="font-semibold text-lg">Location</h4>
+                <span className="text-muted-foreground text-base">İzmir, Turkey</span>
               </div>
             </div>
             

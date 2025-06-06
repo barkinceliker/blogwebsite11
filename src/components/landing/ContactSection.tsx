@@ -49,7 +49,7 @@ export default function ContactSection() {
         form.reset();
       } else {
         toast({
-          title: 'Error',
+          title: 'Error Sending Message',
           description: result.error || 'Failed to send message. Please try again.',
           variant: 'destructive',
         });

@@ -4,14 +4,13 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { login as loginUser, logout as logoutUser } from '@/lib/auth';
-import type { Project, BlogPost, AboutMeContent, Skill, ContactMessage, UserSession } from '@/types';
+import type { Project, BlogPost, AboutMeContent, Skill, ContactMessage } from '@/types';
 import { firestore } from '@/lib/firebase';
 import {
   collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, query, where, orderBy, Timestamp, setDoc
 } from 'firebase/firestore';
 import { DEFAULT_ABOUT_ME_CONTENT, SITE_CONFIG_COLLECTION, ABOUT_ME_DOC_ID } from '@/lib/constants';
 
-// Helper to convert Firestore Timestamps to ISO strings if they exist
 const convertTimestamps = (data: any) => {
   const newData = { ...data };
   for (const key in newData) {
@@ -25,7 +24,6 @@ const convertTimestamps = (data: any) => {
 export async function handleLogin(formData: FormData): Promise<{ success: boolean; error?: string; name?: string }> {
   const result = await loginUser(formData);
   if (result.success && result.session) {
-    // redirect('/admin/dashboard'); // Yönlendirmeyi kaldır, client tarafı halledecek
     return { success: true, name: result.session.name };
   }
   return { success: false, error: result.error };
@@ -33,12 +31,11 @@ export async function handleLogin(formData: FormData): Promise<{ success: boolea
 
 export async function handleLogout() {
   await logoutUser();
-  revalidatePath('/admin', 'layout'); // Admin layout'unu ve sayfasını yeniden doğrula
-  revalidatePath('/admin/dashboard', 'layout'); // Dashboard ve alt sayfalarını da etkileyebilir
+  revalidatePath('/admin', 'layout'); 
+  revalidatePath('/admin/dashboard', 'layout'); 
   redirect('/admin');
 }
 
-// Project CRUD actions
 export async function getProjects(): Promise<Project[]> {
   try {
     const projectsCol = collection(firestore, 'projects');
@@ -95,7 +92,7 @@ export async function createProject(formData: FormData): Promise<{ success: bool
     return { success: true, data: createdProject };
   } catch (error: any) {
     console.error("[Server Action] Error creating project in Firestore:", error);
-    return { success: false, error: error.message || `Failed to create project in Firestore. Details: ${error.toString()}` };
+    return { success: false, error: error.message || `Failed to create project. Details: ${error.toString()}` };
   }
 }
 
@@ -126,7 +123,7 @@ export async function updateProject(id: string, formData: FormData): Promise<{ s
     return { success: true, data: updatedProject };
   } catch (error: any) {
     console.error(`[Server Action] Error updating project ${id} in Firestore:`, error);
-    return { success: false, error: error.message || `Failed to update project ${id} in Firestore. Details: ${error.toString()}` };
+    return { success: false, error: error.message || `Failed to update project. Details: ${error.toString()}` };
   }
 }
 
@@ -140,11 +137,10 @@ export async function deleteProject(id: string): Promise<{ success: boolean; err
     return { success: true };
   } catch (error: any) {
     console.error(`[Server Action] Error deleting project ${id} from Firestore:`, error);
-    return { success: false, error: error.message || `Failed to delete project ${id} from Firestore. Details: ${error.toString()}` };
+    return { success: false, error: error.message || `Failed to delete project. Details: ${error.toString()}` };
   }
 }
 
-// BlogPost CRUD actions
 export async function getBlogPosts(): Promise<BlogPost[]> {
   try {
     const postsCol = collection(firestore, 'blogPosts');
@@ -191,7 +187,6 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | undefi
   }
 }
 
-
 export async function createBlogPost(formData: FormData): Promise<{ success: boolean; error?: string, data?: BlogPost }> {
   const title = formData.get('title') as string;
   const slug = formData.get('slug') as string;
@@ -234,7 +229,7 @@ export async function createBlogPost(formData: FormData): Promise<{ success: boo
     return { success: true, data: createdPost };
   } catch (error: any) {
     console.error("[Server Action] Error creating blog post in Firestore:", error);
-    return { success: false, error: error.message || `Failed to create blog post in Firestore. Details: ${error.toString()}` };
+    return { success: false, error: error.message || `Failed to create blog post. Details: ${error.toString()}` };
   }
 }
 
@@ -282,7 +277,7 @@ export async function updateBlogPost(id: string, formData: FormData): Promise<{ 
     return { success: true, data: updatedPost };
   } catch (error: any) {
     console.error(`[Server Action] Error updating blog post ${id} in Firestore:`, error);
-    return { success: false, error: error.message || `Failed to update blog post ${id} in Firestore. Details: ${error.toString()}` };
+    return { success: false, error: error.message || `Failed to update blog post. Details: ${error.toString()}` };
   }
 }
 
@@ -300,11 +295,10 @@ export async function deleteBlogPost(id: string): Promise<{ success: boolean; er
     return { success: true };
   } catch (error: any) {
     console.error(`[Server Action] Error deleting blog post ${id} from Firestore:`, error);
-    return { success: false, error: error.message || `Failed to delete blog post ${id} from Firestore. Details: ${error.toString()}` };
+    return { success: false, error: error.message || `Failed to delete blog post. Details: ${error.toString()}` };
   }
 }
 
-// AboutMeContent actions
 export async function getAboutMeContent(): Promise<AboutMeContent> {
   try {
     const aboutMeDocRef = doc(firestore, SITE_CONFIG_COLLECTION, ABOUT_ME_DOC_ID);
@@ -343,11 +337,10 @@ export async function updateAboutMeContent(formData: FormData): Promise<{ succes
     return { success: true, data: aboutMeData };
   } catch (error: any) {
     console.error("[Server Action] Error updating AboutMeContent in Firestore:", error);
-    return { success: false, error: error.message || `Failed to update About Me content in Firestore. Details: ${error.toString()}` };
+    return { success: false, error: error.message || `Failed to update About Me content. Details: ${error.toString()}` };
   }
 }
 
-// Contact Messages actions
 export async function getContactMessages(): Promise<ContactMessage[]> {
   try {
     const messagesCol = collection(firestore, 'contactMessages');
@@ -387,11 +380,10 @@ export async function submitContactForm(formData: FormData): Promise<{ success: 
     return { success: true };
   } catch (error: any) {
     console.error("[Server Action] Error submitting contact form to Firestore:", error);
-    return { success: false, error: error.message || `Failed to submit contact message to Firestore. Details: ${error.toString()}` };
+    return { success: false, error: error.message || `Failed to submit contact message. Details: ${error.toString()}` };
   }
 }
 
-// Skills CRUD Actions
 export async function getSkills(): Promise<Skill[]> {
   try {
     const skillsCol = collection(firestore, 'skills');
@@ -449,7 +441,7 @@ export async function createSkill(formData: FormData): Promise<{ success: boolea
     return { success: true, data: createdSkill };
   } catch (error: any) {
     console.error("[Server Action] Error creating skill in Firestore:", error);
-    return { success: false, error: error.message || `Failed to create skill in Firestore. Details: ${error.toString()}` };
+    return { success: false, error: error.message || `Failed to create skill. Details: ${error.toString()}` };
   }
 }
 
@@ -482,7 +474,7 @@ export async function updateSkill(id: string, formData: FormData): Promise<{ suc
     return { success: true, data: updatedSkill };
   } catch (error: any) {
     console.error(`[Server Action] Error updating skill ${id} in Firestore:`, error);
-    return { success: false, error: error.message || `Failed to update skill ${id} in Firestore. Details: ${error.toString()}` };
+    return { success: false, error: error.message || `Failed to update skill. Details: ${error.toString()}` };
   }
 }
 
@@ -496,6 +488,6 @@ export async function deleteSkill(id: string): Promise<{ success: boolean; error
     return { success: true };
   } catch (error: any) {
     console.error(`[Server Action] Error deleting skill ${id} from Firestore:`, error);
-    return { success: false, error: error.message || `Failed to delete skill ${id} from Firestore. Details: ${error.toString()}` };
+    return { success: false, error: error.message || `Failed to delete skill. Details: ${error.toString()}` };
   }
 }

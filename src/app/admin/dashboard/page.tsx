@@ -1,6 +1,5 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Briefcase, FileText, MessageSquare, User, ArrowRight, LayoutDashboard } from "lucide-react";
 import { ADMIN_NAV_LINKS, AUTHOR_NAME } from "@/lib/constants";
@@ -18,10 +17,9 @@ export default async function AdminDashboardPage() {
     Projects: Briefcase,
     'Blog Posts': FileText,
     Messages: MessageSquare,
-    Skills: User, // Assuming 'Skills' icon is User for now, adjust if different
+    Skills: User, 
   };
 
-  // Fetch dynamic data
   const projects = await getProjects();
   const blogPosts = await getBlogPosts();
   const contactMessages = await getContactMessages();

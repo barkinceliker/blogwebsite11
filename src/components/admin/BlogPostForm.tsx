@@ -52,7 +52,7 @@ export default function BlogPostForm({ initialData, onSubmitAction, isEditing }:
     const formData = new FormData();
     formData.append('title', data.title);
     formData.append('slug', data.slug);
-    formData.append('date', new Date(data.date).toISOString()); // Ensure ISO string for server
+    formData.append('date', new Date(data.date).toISOString()); 
     formData.append('excerpt', data.excerpt);
     formData.append('content', data.content);
     formData.append('imageUrl', data.imageUrl || 'https://placehold.co/600x400.png');
@@ -79,15 +79,14 @@ export default function BlogPostForm({ initialData, onSubmitAction, isEditing }:
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const title = e.target.value;
     form.setValue('title', title);
-    if (!form.formState.dirtyFields.slug) { // Only auto-generate slug if not manually edited
+    if (!form.formState.dirtyFields.slug) { 
         const slug = title
             .toLowerCase()
-            .replace(/\s+/g, '-') // Replace spaces with hyphens
-            .replace(/[^\w-]+/g, ''); // Remove non-alphanumeric characters except hyphens
+            .replace(/\s+/g, '-') 
+            .replace(/[^\w-]+/g, ''); 
         form.setValue('slug', slug);
     }
   };
-
 
   return (
     <Form {...form}>

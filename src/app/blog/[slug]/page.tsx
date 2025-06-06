@@ -21,14 +21,14 @@ interface BlogPostPageProps {
 export const dynamicParams = true; 
 
 export async function generateStaticParams() {
-  const posts = await getBlogPosts(); // Fetch from Firestore
+  const posts = await getBlogPosts();
   return posts.map((post) => ({
     slug: post.slug,
   }));
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps) {
-  const post = await getBlogPostBySlug(params.slug); // Fetch from Firestore
+  const post = await getBlogPostBySlug(params.slug);
   if (!post) {
     return { title: 'Post Not Found' };
   }
@@ -39,7 +39,7 @@ export async function generateMetadata({ params }: BlogPostPageProps) {
 }
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
-  const post = await getBlogPostBySlug(params.slug); // Fetch from Firestore
+  const post = await getBlogPostBySlug(params.slug);
 
   if (!post) {
     notFound();

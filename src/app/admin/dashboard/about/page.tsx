@@ -45,10 +45,10 @@ export default function AdminAboutPage() {
       try {
         const data = await getAboutMeContent();
         setInitialData(data);
-        form.reset(data); // Populate form with fetched data
+        form.reset(data); 
       } catch (error) {
         toast({
-          title: 'Error fetching data',
+          title: 'Error Fetching Data',
           description: 'Could not load About Me content.',
           variant: 'destructive',
         });
@@ -72,7 +72,7 @@ export default function AdminAboutPage() {
         title: 'Content Updated',
         description: 'Your "About Me" section has been successfully updated.',
       });
-      setInitialData(result.data || null); // Update initialData to reflect changes
+      setInitialData(result.data || null); 
     } else {
       toast({
         title: 'Update Failed',
