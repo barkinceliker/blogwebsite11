@@ -1,7 +1,7 @@
 
 import AdminSidebar from '@/components/admin/AdminSidebar';
-import { isAuthenticated } from '@/lib/auth';
-import { redirect } from 'next/navigation';
+// import { isAuthenticated } from '@/lib/auth'; // Yönlendirme için kaldırıldı
+// import { redirect } from 'next/navigation'; // Yönlendirme için kaldırıldı
 import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from 'next';
 
@@ -17,9 +17,10 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  if (!(await isAuthenticated())) {
-    redirect('/admin');
-  }
+  // Giriş yapmamış kullanıcıyı login sayfasına yönlendirme mantığı kaldırıldı.
+  // if (!(await isAuthenticated())) {
+  //   redirect('/admin');
+  // }
 
   return (
     <div className="flex min-h-screen bg-muted/40">
