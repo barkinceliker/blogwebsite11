@@ -6,8 +6,8 @@ import { revalidatePath } from 'next/cache';
 import { login as loginUser, logout as logoutUser } from '@/lib/auth';
 import type { Project, BlogPost, AboutMeContent, Skill, ContactMessage } from '@/types';
 import { firestore } from '@/lib/firebase';
-import { 
-  collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, query, where, orderBy, Timestamp, setDoc 
+import {
+  collection, getDocs, getDoc, doc, addDoc, updateDoc, deleteDoc, query, where, orderBy, Timestamp, setDoc
 } from 'firebase/firestore';
 import { DEFAULT_ABOUT_ME_CONTENT } from '@/lib/constants';
 
@@ -39,9 +39,8 @@ export async function handleLogout() {
 export async function getProjects(): Promise<Project[]> {
   try {
     const projectsCol = collection(firestore, 'projects');
-    // Order by a 'createdAt' field if you add one, otherwise default order
-    // const q = query(projectsCol, orderBy('createdAt', 'desc')); 
-    const projectsSnapshot = await getDocs(projectsCol);
+    const q = query(projectsCol, orderBy('createdAt', 'desc'));
+    const projectsSnapshot = await getDocs(q);
     const projectsList = projectsSnapshot.docs.map(docSnap => ({
       id: docSnap.id,
       ...convertTimestamps(docSnap.data()),
@@ -75,18 +74,19 @@ export async function createProject(formData: FormData): Promise<{ success: bool
   const description = formData.get('description') as string;
   const imageUrl = formData.get('imageUrl') as string;
   const tags = formData.get('tags') as string;
-  
+
   if (!title || !description) {
     return { success: false, error: "Title and description are required." };
   }
-  const newProjectData = { 
-    title, 
-    description, 
-    imageUrl: imageUrl || 'https://placehold.co/600x400.png', 
-    tags: tags ? tags.split(',').map(t => t.trim()) : [], 
+  const newProjectData = {
+    title,
+    description,
+    imageUrl: imageUrl || 'https://placehold.co/600x400.png',
+    tags: tags ? tags.split(',').map(t => t.trim()) : [],
     dataAiHint: title.toLowerCase().split(' ').slice(0,2).join(' ') || "new project",
-    createdAt: Timestamp.now() // Optional: for ordering
+    createdAt: Timestamp.now()
   };
+  console.log('[Server Action] Attempting to create project with data:', newProjectData);
   try {
     const docRef = await addDoc(collection(firestore, 'projects'), newProjectData);
     const createdProject = { id: docRef.id, ...newProjectData, createdAt: newProjectData.createdAt.toDate().toISOString() } as Project;
@@ -97,7 +97,8 @@ export async function createProject(formData: FormData): Promise<{ success: bool
     return { success: true, data: createdProject };
   } catch (error) {
     console.error("[Server Action] Error creating project in Firestore:", error);
-    return { success: false, error: "Failed to create project in Firestore." };
+    const errorMessage = (error instanceof Error) ? error.message : String(error);
+    return { success: false, error: `Failed to create project in Firestore: ${errorMessage}` };
   }
 }
 
@@ -111,16 +112,17 @@ export async function updateProject(id: string, formData: FormData): Promise<{ s
     return { success: false, error: "Title and description are required." };
   }
   const projectDocRef = doc(firestore, 'projects', id);
-  const updatedProjectData = { 
-    title, 
-    description, 
-    imageUrl: imageUrl || 'https://placehold.co/600x400.png', 
+  const updatedProjectData = {
+    title,
+    description,
+    imageUrl: imageUrl || 'https://placehold.co/600x400.png',
     tags: tags ? tags.split(',').map(t => t.trim()) : [],
-    dataAiHint: title.toLowerCase().split(' ').slice(0,2).join(' ') || "updated project" 
+    dataAiHint: title.toLowerCase().split(' ').slice(0,2).join(' ') || "updated project"
   };
+  console.log(`[Server Action] Attempting to update project ${id} with data:`, updatedProjectData);
   try {
     await updateDoc(projectDocRef, updatedProjectData);
-    const updatedProject = {id, ...updatedProjectData } as Project; // Assuming no timestamp conversion needed here for return type
+    const updatedProject = {id, ...updatedProjectData } as Project;
     console.log(`[Server Action] updateProject successful in Firestore for id: ${id}`);
     revalidatePath('/admin/dashboard/projects');
     revalidatePath(`/admin/dashboard/projects/edit/${id}`);
@@ -129,11 +131,13 @@ export async function updateProject(id: string, formData: FormData): Promise<{ s
     return { success: true, data: updatedProject };
   } catch (error) {
     console.error(`[Server Action] Error updating project ${id} in Firestore:`, error);
-    return { success: false, error: `Failed to update project ${id} in Firestore.` };
+    const errorMessage = (error instanceof Error) ? error.message : String(error);
+    return { success: false, error: `Failed to update project ${id} in Firestore: ${errorMessage}` };
   }
 }
 
 export async function deleteProject(id: string): Promise<{ success: boolean; error?: string }> {
+  console.log(`[Server Action] Attempting to delete project ${id}`);
   try {
     const projectDocRef = doc(firestore, 'projects', id);
     await deleteDoc(projectDocRef);
@@ -144,7 +148,8 @@ export async function deleteProject(id: string): Promise<{ success: boolean; err
     return { success: true };
   } catch (error) {
     console.error(`[Server Action] Error deleting project ${id} from Firestore:`, error);
-    return { success: false, error: `Failed to delete project ${id} from Firestore.` };
+    const errorMessage = (error instanceof Error) ? error.message : String(error);
+    return { success: false, error: `Failed to delete project ${id} from Firestore: ${errorMessage}` };
   }
 }
 
@@ -152,7 +157,7 @@ export async function deleteProject(id: string): Promise<{ success: boolean; err
 export async function getBlogPosts(): Promise<BlogPost[]> {
   try {
     const postsCol = collection(firestore, 'blogPosts');
-    const q = query(postsCol, orderBy('date', 'desc')); // Order by date
+    const q = query(postsCol, orderBy('date', 'desc'));
     const postsSnapshot = await getDocs(q);
     const postsList = postsSnapshot.docs.map(docSnap => ({
       id: docSnap.id,
@@ -204,7 +209,7 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | undefi
 export async function createBlogPost(formData: FormData): Promise<{ success: boolean; error?: string, data?: BlogPost }> {
   const title = formData.get('title') as string;
   const slug = formData.get('slug') as string;
-  const dateString = formData.get('date') as string; // Expecting ISO string or YYYY-MM-DD
+  const dateString = formData.get('date') as string;
   const excerpt = formData.get('excerpt') as string;
   const content = formData.get('content') as string;
   const imageUrl = formData.get('imageUrl') as string;
@@ -213,19 +218,30 @@ export async function createBlogPost(formData: FormData): Promise<{ success: boo
   if (!title || !slug || !content || !dateString || !excerpt) {
     return { success: false, error: "Title, slug, date, excerpt, and content are required." };
   }
-  const newPostData = { 
-    title, 
-    slug, 
-    date: Timestamp.fromDate(new Date(dateString)), 
-    excerpt, 
-    content, 
-    imageUrl: imageUrl || 'https://placehold.co/600x400.png', 
+  let parsedDate;
+  try {
+    parsedDate = new Date(dateString);
+    if (isNaN(parsedDate.getTime())) {
+        throw new Error('Invalid date format');
+    }
+  } catch(e) {
+    return { success: false, error: "Invalid date format provided for blog post."};
+  }
+
+  const newPostData = {
+    title,
+    slug,
+    date: Timestamp.fromDate(parsedDate),
+    excerpt,
+    content,
+    imageUrl: imageUrl || 'https://placehold.co/600x400.png',
     tags: tags ? tags.split(',').map(t => t.trim()) : [],
     dataAiHint: title.toLowerCase().split(' ').slice(0,2).join(' ') || "new blog"
   };
+  console.log('[Server Action] Attempting to create blog post with data:', newPostData);
   try {
     const docRef = await addDoc(collection(firestore, 'blogPosts'), newPostData);
-    const createdPost = { ...newPostData, id: docRef.id, date: dateString } as BlogPost; // Convert date back to string for return
+    const createdPost = { ...newPostData, id: docRef.id, date: newPostData.date.toDate().toISOString() } as BlogPost;
     console.log('[Server Action] createBlogPost successful in Firestore:', createdPost);
     revalidatePath('/admin/dashboard/blog');
     revalidatePath('/blog');
@@ -234,7 +250,8 @@ export async function createBlogPost(formData: FormData): Promise<{ success: boo
     return { success: true, data: createdPost };
   } catch (error) {
     console.error("[Server Action] Error creating blog post in Firestore:", error);
-    return { success: false, error: "Failed to create blog post in Firestore." };
+    const errorMessage = (error instanceof Error) ? error.message : String(error);
+    return { success: false, error: `Failed to create blog post in Firestore: ${errorMessage}` };
   }
 }
 
@@ -250,20 +267,31 @@ export async function updateBlogPost(id: string, formData: FormData): Promise<{ 
   if (!title || !slug || !content || !dateString || !excerpt) {
     return { success: false, error: "Title, slug, date, excerpt and content are required." };
   }
+  let parsedDate;
+  try {
+    parsedDate = new Date(dateString);
+    if (isNaN(parsedDate.getTime())) {
+        throw new Error('Invalid date format');
+    }
+  } catch(e) {
+    return { success: false, error: "Invalid date format provided for blog post update."};
+  }
+
   const postDocRef = doc(firestore, 'blogPosts', id);
-  const updatedPostData = { 
-    title, 
-    slug, 
-    date: Timestamp.fromDate(new Date(dateString)), 
-    excerpt, 
-    content, 
-    imageUrl: imageUrl || 'https://placehold.co/600x400.png', 
+  const updatedPostData = {
+    title,
+    slug,
+    date: Timestamp.fromDate(parsedDate),
+    excerpt,
+    content,
+    imageUrl: imageUrl || 'https://placehold.co/600x400.png',
     tags: tags ? tags.split(',').map(t => t.trim()) : [],
     dataAiHint: title.toLowerCase().split(' ').slice(0,2).join(' ') || "updated blog"
   };
+  console.log(`[Server Action] Attempting to update blog post ${id} with data:`, updatedPostData);
   try {
     await updateDoc(postDocRef, updatedPostData);
-    const updatedPost = { ...updatedPostData, id, date: dateString } as BlogPost;
+    const updatedPost = { ...updatedPostData, id, date: updatedPostData.date.toDate().toISOString() } as BlogPost;
     console.log(`[Server Action] updateBlogPost successful in Firestore for id: ${id}`);
     revalidatePath('/admin/dashboard/blog');
     revalidatePath(`/admin/dashboard/blog/edit/${id}`);
@@ -273,11 +301,13 @@ export async function updateBlogPost(id: string, formData: FormData): Promise<{ 
     return { success: true, data: updatedPost };
   } catch (error) {
     console.error(`[Server Action] Error updating blog post ${id} in Firestore:`, error);
-    return { success: false, error: `Failed to update blog post ${id} in Firestore.` };
+    const errorMessage = (error instanceof Error) ? error.message : String(error);
+    return { success: false, error: `Failed to update blog post ${id} in Firestore: ${errorMessage}` };
   }
 }
 
 export async function deleteBlogPost(id: string): Promise<{ success: boolean; error?: string }> {
+  console.log(`[Server Action] Attempting to delete blog post ${id}`);
   try {
     const postDocRef = doc(firestore, 'blogPosts', id);
     const postSnap = await getDoc(postDocRef);
@@ -292,7 +322,8 @@ export async function deleteBlogPost(id: string): Promise<{ success: boolean; er
     return { success: true };
   } catch (error) {
     console.error(`[Server Action] Error deleting blog post ${id} from Firestore:`, error);
-    return { success: false, error: `Failed to delete blog post ${id} from Firestore.` };
+    const errorMessage = (error instanceof Error) ? error.message : String(error);
+    return { success: false, error: `Failed to delete blog post ${id} from Firestore: ${errorMessage}` };
   }
 }
 
@@ -308,10 +339,10 @@ export async function getAboutMeContent(): Promise<AboutMeContent> {
       return docSnap.data() as AboutMeContent;
     }
     console.log('[Server Action] AboutMeContent not found in Firestore, returning default.');
-    return DEFAULT_ABOUT_ME_CONTENT; // Return default if not found
+    return DEFAULT_ABOUT_ME_CONTENT;
   } catch (error) {
     console.error("[Server Action] Error fetching AboutMeContent from Firestore:", error);
-    return DEFAULT_ABOUT_ME_CONTENT; // Return default on error
+    return DEFAULT_ABOUT_ME_CONTENT;
   }
 }
 
@@ -320,15 +351,15 @@ export async function updateAboutMeContent(formData: FormData): Promise<{ succes
   const introduction = formData.get('introduction') as string;
   const mission = formData.get('mission') as string;
   const skillsSummary = formData.get('skillsSummary') as string;
-  
+
   if (!greeting || !introduction || !mission || !skillsSummary) {
     return { success: false, error: "All fields for About Me are required." };
   }
   const aboutMeData: AboutMeContent = { greeting, introduction, mission, skillsSummary };
-  
+  console.log('[Server Action] Attempting to update AboutMeContent with data:', aboutMeData);
   try {
     const aboutMeDocRef = doc(firestore, ABOUT_ME_DOC_PATH);
-    await setDoc(aboutMeDocRef, aboutMeData, { merge: true }); // Use setDoc with merge to create or update
+    await setDoc(aboutMeDocRef, aboutMeData, { merge: true });
     console.log('[Server Action] updateAboutMeContent successful in Firestore:', aboutMeData);
     revalidatePath('/admin/dashboard/about');
     revalidatePath('/about');
@@ -336,7 +367,8 @@ export async function updateAboutMeContent(formData: FormData): Promise<{ succes
     return { success: true, data: aboutMeData };
   } catch (error) {
     console.error("[Server Action] Error updating AboutMeContent in Firestore:", error);
-    return { success: false, error: "Failed to update About Me content in Firestore." };
+    const errorMessage = (error instanceof Error) ? error.message : String(error);
+    return { success: false, error: `Failed to update About Me content in Firestore: ${errorMessage}` };
   }
 }
 
@@ -375,14 +407,16 @@ export async function submitContactForm(formData: FormData): Promise<{ success: 
     message,
     receivedAt: Timestamp.now()
   };
+  console.log('[Server Action] Attempting to submit contact form with data:', newMessageData);
   try {
     await addDoc(collection(firestore, 'contactMessages'), newMessageData);
     console.log(`[Server Action] New contact message from ${name} (${email}) saved to Firestore.`);
-    revalidatePath('/admin/dashboard/contact'); // Revalidate admin page if they view messages there
+    revalidatePath('/admin/dashboard/contact');
     return { success: true };
   } catch (error) {
     console.error("[Server Action] Error submitting contact form to Firestore:", error);
-    return { success: false, error: "Failed to submit contact message to Firestore." };
+    const errorMessage = (error instanceof Error) ? error.message : String(error);
+    return { success: false, error: `Failed to submit contact message to Firestore: ${errorMessage}` };
   }
 }
 
@@ -390,7 +424,6 @@ export async function submitContactForm(formData: FormData): Promise<{ success: 
 export async function getSkills(): Promise<Skill[]> {
   try {
     const skillsCol = collection(firestore, 'skills');
-    // const q = query(skillsCol, orderBy('name')); // Optionally order by name or another field
     const skillsSnapshot = await getDocs(skillsCol);
     const skillsList = skillsSnapshot.docs.map(docSnap => ({
       id: docSnap.id,
@@ -422,53 +455,58 @@ export async function getSkillById(id: string): Promise<Skill | undefined> {
 
 export async function createSkill(formData: FormData): Promise<{ success: boolean; error?: string, data?: Skill }> {
   const name = formData.get('name') as string;
-  const level = parseInt(formData.get('level') as string, 10);
+  const levelStr = formData.get('level') as string;
   const icon = formData.get('icon') as string;
 
-  if (!name || isNaN(level) || !icon) {
-    return { success: false, error: "Name, a valid level, and icon are required." };
+  if (!name || !levelStr || !icon) {
+    return { success: false, error: "Name, level, and icon are required." };
   }
-  if (level < 0 || level > 100) {
-    return { success: false, error: "Level must be between 0 and 100." };
+  const level = parseInt(levelStr, 10);
+  if (isNaN(level) || level < 0 || level > 100) {
+    return { success: false, error: "Level must be a number between 0 and 100." };
   }
 
-  const newSkillData: Omit<Skill, 'id'> = { 
-    name, 
-    level, 
-    icon: icon as any 
+  const newSkillData: Omit<Skill, 'id'> = {
+    name,
+    level,
+    icon: icon as any // Assuming icon is a LucideIcon name string
   };
+  console.log('[Server Action] Attempting to create skill with data:', newSkillData);
   try {
     const docRef = await addDoc(collection(firestore, 'skills'), newSkillData);
     const createdSkill = { ...newSkillData, id: docRef.id } as Skill;
     console.log('[Server Action] createSkill successful in Firestore:', createdSkill);
     revalidatePath('/admin/dashboard/skills');
-    revalidatePath('/about'); 
-    revalidatePath('/'); 
+    revalidatePath('/about');
+    revalidatePath('/');
     return { success: true, data: createdSkill };
   } catch (error) {
     console.error("[Server Action] Error creating skill in Firestore:", error);
-    return { success: false, error: "Failed to create skill in Firestore." };
+    const errorMessage = (error instanceof Error) ? error.message : String(error);
+    return { success: false, error: `Failed to create skill in Firestore: ${errorMessage}` };
   }
 }
 
 export async function updateSkill(id: string, formData: FormData): Promise<{ success: boolean; error?: string, data?: Skill }> {
   const name = formData.get('name') as string;
-  const level = parseInt(formData.get('level') as string, 10);
+  const levelStr = formData.get('level') as string;
   const icon = formData.get('icon') as string;
 
-  if (!name || isNaN(level) || !icon) {
-    return { success: false, error: "Name, a valid level, and icon are required." };
+  if (!name || !levelStr || !icon) {
+    return { success: false, error: "Name, level, and icon are required." };
   }
-   if (level < 0 || level > 100) {
-    return { success: false, error: "Level must be between 0 and 100." };
+  const level = parseInt(levelStr, 10);
+  if (isNaN(level) || level < 0 || level > 100) {
+    return { success: false, error: "Level must be a number between 0 and 100." };
   }
 
   const skillDocRef = doc(firestore, 'skills', id);
-  const updatedSkillData: Omit<Skill, 'id'> = { 
-    name, 
-    level, 
-    icon: icon as any 
+  const updatedSkillData: Omit<Skill, 'id'> = {
+    name,
+    level,
+    icon: icon as any // Assuming icon is a LucideIcon name string
   };
+  console.log(`[Server Action] Attempting to update skill ${id} with data:`, updatedSkillData);
   try {
     await updateDoc(skillDocRef, updatedSkillData);
     const updatedSkill = { ...updatedSkillData, id } as Skill;
@@ -480,11 +518,13 @@ export async function updateSkill(id: string, formData: FormData): Promise<{ suc
     return { success: true, data: updatedSkill };
   } catch (error) {
     console.error(`[Server Action] Error updating skill ${id} in Firestore:`, error);
-    return { success: false, error: `Failed to update skill ${id} in Firestore.` };
+    const errorMessage = (error instanceof Error) ? error.message : String(error);
+    return { success: false, error: `Failed to update skill ${id} in Firestore: ${errorMessage}` };
   }
 }
 
 export async function deleteSkill(id: string): Promise<{ success: boolean; error?: string }> {
+  console.log(`[Server Action] Attempting to delete skill ${id}`);
   try {
     const skillDocRef = doc(firestore, 'skills', id);
     await deleteDoc(skillDocRef);
@@ -495,6 +535,9 @@ export async function deleteSkill(id: string): Promise<{ success: boolean; error
     return { success: true };
   } catch (error) {
     console.error(`[Server Action] Error deleting skill ${id} from Firestore:`, error);
-    return { success: false, error: `Failed to delete skill ${id} from Firestore.` };
+    const errorMessage = (error instanceof Error) ? error.message : String(error);
+    return { success: false, error: `Failed to delete skill ${id} from Firestore: ${errorMessage}` };
   }
 }
+
+    
