@@ -75,13 +75,9 @@ export default function AdminSidebar({ session }: AdminSidebarProps) {
             </div>
           </>
         ) : (
-          // Optional: Display a message or keep this area blank if not authenticated
-          // For example, you could add a message like:
-          // <div className="p-4 text-center text-sm text-sidebar-foreground/70">
-          //   Please log in to access admin features.
-          // </div>
-          // Or simply leave it empty so only the header shows.
-          <div className="flex-grow"></div> // Ensures footer (if any outside this block) stays at bottom
+          // Kullanıcı giriş yapmamışsa, navigasyon linkleri ve çıkış butonu gösterilmez.
+          // Bu blok, kenar çubuğunun alt kısmının (varsa) doğru konumda kalmasını sağlar.
+          <div className="flex-grow"></div> 
         )}
       </div>
     </aside>
