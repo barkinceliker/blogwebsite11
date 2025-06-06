@@ -12,13 +12,13 @@ import SectionWrapper from '@/components/SectionWrapper';
 import { useToast } from '@/hooks/use-toast';
 import { submitContactForm } from '@/lib/actions/adminActions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Mail, Send, MapPin, Phone, Linkedin, Github } from 'lucide-react';
+import { Mail, Send, MapPin, Linkedin, Github } from 'lucide-react';
 import Link from 'next/link';
 
 const contactFormSchema = z.object({
-  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  email: z.string().email({ message: 'Please enter a valid email address.' }),
-  message: z.string().min(10, { message: 'Message must be at least 10 characters.' }),
+  name: z.string().min(2, { message: 'İsim en az 2 karakter olmalıdır.' }),
+  email: z.string().email({ message: 'Lütfen geçerli bir e-posta adresi girin.' }),
+  message: z.string().min(10, { message: 'Mesaj en az 10 karakter olmalıdır.' }),
 });
 
 type ContactFormValues = z.infer<typeof contactFormSchema>;
@@ -45,45 +45,45 @@ export default function ContactPage() {
 
       if (result.success) {
         toast({
-          title: 'Message Sent!',
-          description: "Thanks for reaching out. I'll get back to you soon.",
+          title: 'Mesaj Gönderildi!',
+          description: "Benimle iletişime geçtiğiniz için teşekkürler. En kısa sürede geri dönüş yapacağım.",
         });
         form.reset();
       } else {
         toast({
-          title: 'Error',
-          description: result.error || 'Failed to send message. Please try again.',
+          title: 'Hata',
+          description: result.error || 'Mesaj gönderilemedi. Lütfen tekrar deneyin.',
           variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'An unexpected error occurred. Please try again.',
+        title: 'Hata',
+        description: 'Beklenmedik bir hata oluştu. Lütfen tekrar deneyin.',
         variant: 'destructive',
       });
     }
   }
 
   return (
-    <SectionWrapper id="contact" className="bg-gradient-to-b from-background via-secondary to-background">
+    <SectionWrapper id="contact" className="bg-gradient-to-b from-background via-secondary to-background py-16 md:py-24">
       <header className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl font-headline font-bold">Contact Me</h1>
-        <p className="text-xl text-muted-foreground mt-3">
-          I'm always open to discussing new projects, creative ideas, or opportunities to be part of your visions.
+        <h1 className="text-4xl md:text-5xl font-headline font-bold text-primary">İletişime Geçin</h1>
+        <p className="text-xl text-muted-foreground mt-4 max-w-2xl mx-auto">
+          Yeni projeler, yaratıcı fikirler veya vizyonlarınızın bir parçası olma fırsatlarını görüşmeye her zaman açığım.
         </p>
       </header>
 
-      <div className="grid md:grid-cols-2 gap-12">
-        <Card className="shadow-xl">
-          <CardHeader>
-            <CardTitle className="flex items-center text-2xl">
-              <Send className="mr-3 h-6 w-6 text-primary" />
-              Send a Direct Message
+      <div className="grid md:grid-cols-2 gap-12 items-start">
+        <Card className="shadow-xl rounded-xl overflow-hidden border-border/50">
+          <CardHeader className="bg-muted/30 p-6">
+            <CardTitle className="flex items-center text-2xl font-semibold">
+              <Send className="mr-3 h-7 w-7 text-primary" />
+              Doğrudan Mesaj Gönderin
             </CardTitle>
-            <CardDescription>Use the form to send me an email. I'll respond as soon as I can.</CardDescription>
+            <CardDescription className="mt-1 text-muted-foreground">Formu kullanarak bana e-posta gönderebilirsiniz. En kısa sürede yanıt vereceğim.</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-6">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
@@ -91,9 +91,9 @@ export default function ContactPage() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Full Name</FormLabel>
+                      <FormLabel className="font-medium">Adınız Soyadınız</FormLabel>
                       <FormControl>
-                        <Input placeholder="Your Name" {...field} />
+                        <Input placeholder="Adınız Soyadınız" {...field} className="text-base"/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -104,9 +104,9 @@ export default function ContactPage() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email Address</FormLabel>
+                      <FormLabel className="font-medium">E-posta Adresiniz</FormLabel>
                       <FormControl>
-                        <Input type="email" placeholder="your.email@example.com" {...field} />
+                        <Input type="email" placeholder="eposta@adresiniz.com" {...field} className="text-base"/>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -117,72 +117,64 @@ export default function ContactPage() {
                   name="message"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Message</FormLabel>
+                      <FormLabel className="font-medium">Mesajınız</FormLabel>
                       <FormControl>
-                        <Textarea placeholder="Type your message here..." className="min-h-[150px]" {...field} />
+                        <Textarea placeholder="Mesajınızı buraya yazın..." className="min-h-[150px] text-base" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                  {form.formState.isSubmitting ? 'Sending...' : 'Send Message'}
+                <Button type="submit" className="w-full text-lg py-3" size="lg" disabled={form.formState.isSubmitting}>
+                  {form.formState.isSubmitting ? 'Gönderiliyor...' : <>Mesajı Gönder <Send className="ml-2 h-5 w-5"/></>}
                 </Button>
               </form>
             </Form>
           </CardContent>
         </Card>
 
-        <Card className="shadow-xl">
-          <CardHeader>
-            <CardTitle className="flex items-center text-2xl">
-              <Mail className="mr-3 h-6 w-6 text-primary" />
-              Other Ways to Connect
+        <Card className="shadow-xl rounded-xl overflow-hidden border-border/50">
+          <CardHeader className="bg-muted/30 p-6">
+            <CardTitle className="flex items-center text-2xl font-semibold">
+              <Mail className="mr-3 h-7 w-7 text-primary" />
+              Diğer Bağlantılarım
             </CardTitle>
-            <CardDescription>You can also find me on these platforms or reach out via email/phone.</CardDescription>
+            <CardDescription className="mt-1 text-muted-foreground">Bana bu platformlardan da ulaşabilirsiniz.</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-start space-x-4 p-4 bg-muted/50 rounded-lg">
-              <Mail className="h-6 w-6 text-primary mt-1 shrink-0" />
+          <CardContent className="p-6 space-y-5">
+            
+             <div className="flex items-center space-x-4 p-4 bg-muted/50 rounded-lg hover:shadow-md transition-shadow">
+              <MapPin className="h-8 w-8 text-primary shrink-0" />
               <div>
-                <h4 className="font-semibold">Email</h4>
-                <a href="mailto:barkin.celiker@example.com" className="text-accent hover:underline">
-                  barkin.celiker@example.com {/* Replace with actual email */}
-                </a>
+                <h4 className="font-semibold text-lg">Konum</h4>
+                <span className="text-muted-foreground text-base">İzmir, Türkiye</span>
               </div>
             </div>
-            <div className="flex items-start space-x-4 p-4 bg-muted/50 rounded-lg">
-              <Phone className="h-6 w-6 text-primary mt-1 shrink-0" />
-              <div>
-                <h4 className="font-semibold">Phone</h4>
-                <span className="text-muted-foreground">+90 (555) 123 4567</span> {/* Replace with actual phone */}
+            
+            <Link href="https://www.linkedin.com/in/celikerbarkin/" target="_blank" rel="noopener noreferrer" className="block p-4 bg-muted/50 rounded-lg hover:shadow-md transition-shadow group">
+              <div className="flex items-center space-x-4">
+                <Linkedin className="h-8 w-8 text-primary shrink-0 group-hover:text-accent transition-colors" />
+                <div>
+                  <h4 className="font-semibold text-lg">LinkedIn</h4>
+                  <p className="text-accent group-hover:underline text-base">
+                    linkedin.com/in/celikerbarkin
+                  </p>
+                </div>
               </div>
-            </div>
-             <div className="flex items-start space-x-4 p-4 bg-muted/50 rounded-lg">
-              <MapPin className="h-6 w-6 text-primary mt-1 shrink-0" />
-              <div>
-                <h4 className="font-semibold">Location</h4>
-                <span className="text-muted-foreground">İzmir, Turkey</span>
+            </Link>
+            
+            <Link href="https://github.com/barkinceliker" target="_blank" rel="noopener noreferrer" className="block p-4 bg-muted/50 rounded-lg hover:shadow-md transition-shadow group">
+               <div className="flex items-center space-x-4">
+                <Github className="h-8 w-8 text-primary shrink-0 group-hover:text-accent transition-colors" />
+                <div>
+                  <h4 className="font-semibold text-lg">GitHub</h4>
+                  <p className="text-accent group-hover:underline text-base">
+                    github.com/barkinceliker
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-start space-x-4 p-4 bg-muted/50 rounded-lg">
-              <Linkedin className="h-6 w-6 text-primary mt-1 shrink-0" />
-              <div>
-                <h4 className="font-semibold">LinkedIn</h4>
-                <Link href="https://linkedin.com/in/barkinceliker" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
-                  linkedin.com/in/barkinceliker
-                </Link>
-              </div>
-            </div>
-            <div className="flex items-start space-x-4 p-4 bg-muted/50 rounded-lg">
-              <Github className="h-6 w-6 text-primary mt-1 shrink-0" />
-              <div>
-                <h4 className="font-semibold">GitHub</h4>
-                <Link href="https://github.com/barkinceliker" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">
-                  github.com/barkinceliker
-                </Link>
-              </div>
-            </div>
+            </Link>
+
           </CardContent>
         </Card>
       </div>
