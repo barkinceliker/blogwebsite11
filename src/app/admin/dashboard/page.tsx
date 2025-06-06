@@ -1,22 +1,34 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Briefcase, FileText, MessageSquare, User, ArrowRight, LayoutDashboard } from "lucide-react";
 import { ADMIN_NAV_LINKS, AUTHOR_NAME } from "@/lib/constants";
 import { getSession } from "@/lib/auth";
+import { getProjects, getBlogPosts, getContactMessages } from "@/lib/actions/adminActions";
 
 export default async function AdminDashboardPage() {
   const session = await getSession();
   const welcomeMessage = session ? `Hello, ${session.name || AUTHOR_NAME}!` : `Hello, ${AUTHOR_NAME}!`;
   
-  const quickLinks = ADMIN_NAV_LINKS.filter(link => link.label !== "Dashboard").slice(0, 4); // Take first 4 non-dashboard links
+  const quickLinks = ADMIN_NAV_LINKS.filter(link => link.label !== "Dashboard").slice(0, 4); 
 
   const iconMap: { [key: string]: React.ElementType } = {
     'About Page': User,
     Projects: Briefcase,
     'Blog Posts': FileText,
     Messages: MessageSquare,
+    Skills: User, // Assuming 'Skills' icon is User for now, adjust if different
   };
+
+  // Fetch dynamic data
+  const projects = await getProjects();
+  const blogPosts = await getBlogPosts();
+  const contactMessages = await getContactMessages();
+
+  const projectCount = projects.length;
+  const blogPostCount = blogPosts.length;
+  const messageCount = contactMessages.length;
 
   return (
     <div className="space-y-8">
@@ -55,18 +67,17 @@ export default async function AdminDashboardPage() {
           <CardDescription>A quick summary of your website's content.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Placeholder stats - replace with actual data fetching */}
           <div className="p-4 bg-muted/50 rounded-lg">
             <h4 className="text-sm font-medium text-muted-foreground">Total Projects</h4>
-            <p className="text-3xl font-bold">3</p>
+            <p className="text-3xl font-bold">{projectCount}</p>
           </div>
           <div className="p-4 bg-muted/50 rounded-lg">
             <h4 className="text-sm font-medium text-muted-foreground">Blog Posts</h4>
-            <p className="text-3xl font-bold">2</p>
+            <p className="text-3xl font-bold">{blogPostCount}</p>
           </div>
           <div className="p-4 bg-muted/50 rounded-lg">
             <h4 className="text-sm font-medium text-muted-foreground">Contact Messages</h4>
-            <p className="text-3xl font-bold">2</p>
+            <p className="text-3xl font-bold">{messageCount}</p>
           </div>
         </CardContent>
       </Card>
