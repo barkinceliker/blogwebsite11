@@ -33,3 +33,7 @@ export const DEFAULT_ABOUT_ME_CONTENT = {
   mission: "My goal is to transform raw data into actionable insights, helping organizations understand their performance, identify opportunities, and make informed strategic choices. I am constantly exploring new tools and techniques in the data science field to enhance my analytical capabilities.",
   skillsSummary: "I have hands-on experience with Python for data manipulation, SQL for database querying, and tools like Tableau for data visualization. I am eager to apply my skills in a professional setting and contribute to data-driven projects."
 };
+
+// Firestore collection and document IDs for site configuration
+export const SITE_CONFIG_COLLECTION = "siteConfig";
+export const ABOUT_ME_DOC_ID = "aboutMeDetails"; // Document ID for About Me content
