@@ -1,3 +1,4 @@
+
 import type { LucideIcon } from "lucide-react";
 
 export interface Project {
@@ -22,6 +23,7 @@ export interface BlogPost {
 }
 
 export interface Skill {
+  id: string; // Added id field
   name: string;
   level: number; // Percentage 0-100
   icon: keyof typeof import("lucide-react") | string; // Lucide icon name or path to custom SVG

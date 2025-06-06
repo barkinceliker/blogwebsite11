@@ -22,23 +22,25 @@ export const ADMIN_NAV_LINKS = [
   { href: "/admin/dashboard/about", label: "About Page" },
   { href: "/admin/dashboard/projects", label: "Projects" },
   { href: "/admin/dashboard/blog", label: "Blog Posts" },
+  { href: "/admin/dashboard/skills", label: "Skills" },
   { href: "/admin/dashboard/contact", label: "Messages" },
-  // { href: "/admin/dashboard/skills", label: "Skills" }, // Optional
   { href: "/admin/dashboard/settings", label: "Settings"},
 ];
 
 
 // Sample data (replace with actual data source or API calls)
-export const SKILLS_DATA = [
-  { name: "Data Analysis", level: 90, icon: "BarChart3" },
-  { name: "Python", level: 85, icon: "Code" },
-  { name: "SQL", level: 80, icon: "Database" },
-  { name: "Tableau", level: 75, icon: "PieChart" },
-  { name: "Excel", level: 95, icon: "FileSpreadsheet" },
-  { name: "Web Scraping", level: 70, icon: "Search" },
+// Made SKILLS_DATA mutable and added IDs for CRUD operations
+export let SKILLS_DATA = [
+  { id: "skill-1", name: "Data Analysis", level: 90, icon: "BarChart3" },
+  { id: "skill-2", name: "Python", level: 85, icon: "Code" },
+  { id: "skill-3", name: "SQL", level: 80, icon: "Database" },
+  { id: "skill-4", name: "Tableau", level: 75, icon: "PieChart" },
+  { id: "skill-5", name: "Excel", level: 95, icon: "FileSpreadsheet" },
+  { id: "skill-6", name: "Web Scraping", level: 70, icon: "Search" },
 ];
 
-export const PROJECTS_DATA = [
+// Made PROJECTS_DATA mutable for CRUD operations
+export let PROJECTS_DATA = [
   {
     id: "1",
     title: "Customer Segmentation Analysis",
@@ -65,7 +67,8 @@ export const PROJECTS_DATA = [
   },
 ];
 
-export const BLOG_POSTS_DATA = [
+// Made BLOG_POSTS_DATA mutable for CRUD operations
+export let BLOG_POSTS_DATA = [
   {
     id: "1",
     slug: "the-importance-of-data-literacy",
@@ -73,7 +76,7 @@ export const BLOG_POSTS_DATA = [
     date: "2024-05-15",
     excerpt: "Exploring why understanding and interpreting data is a crucial skill for everyone, not just data professionals.",
     imageUrl: "https://placehold.co/600x400.png",
-    content: "<p>Full blog post content about data literacy...</p>",
+    content: "<p>Full blog post content about data literacy...</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p><h3>Key Aspects of Data Literacy</h3><ul><li>Understanding data sources</li><li>Interpreting charts and graphs</li><li>Asking the right questions from data</li><li>Communicating insights effectively</li></ul><p>Mastering these aspects can significantly enhance decision-making in any field.</p>",
     tags: ["Data Literacy", "Skills", "Education"],
     dataAiHint: "books data"
   },
@@ -84,18 +87,20 @@ export const BLOG_POSTS_DATA = [
     date: "2024-04-20",
     excerpt: "A beginner's guide to setting up Python and essential libraries like Pandas and NumPy for data analysis tasks.",
     imageUrl: "https://placehold.co/600x400.png",
-    content: "<p>Full blog post content about Python for data analysis...</p>",
+    content: "<p>This guide will walk you through the initial steps of using Python for data analysis.</p><h4>Installation</h4><p>Ensure you have Python installed. Then, install necessary libraries:</p><pre><code>pip install pandas numpy matplotlib seaborn jupyter</code></pre><h4>Basic Pandas Operations</h4><p>Pandas is key for data manipulation. Here's how to read a CSV:</p><pre><code>import pandas as pd\ndf = pd.read_csv('your_data.csv')\nprint(df.head())</code></pre><p>Further topics include data cleaning, transformation, and visualization, which are fundamental for any data analyst.</p>",
     tags: ["Python", "Data Analysis", "Tutorial"],
     dataAiHint: "python code"
   },
 ];
 
-export const CONTACT_MESSAGES_DATA = [
+// Made CONTACT_MESSAGES_DATA mutable
+export let CONTACT_MESSAGES_DATA = [
    { id: "1", name: "Jane Doe", email: "jane@example.com", message: "Great portfolio! I'd love to connect.", receivedAt: new Date().toISOString() },
    { id: "2", name: "John Smith", email: "john@example.com", message: "Interested in your data analysis skills for a project.", receivedAt: new Date(Date.now() - 86400000).toISOString() },
 ];
 
-export const ABOUT_ME_CONTENT = {
+// Made ABOUT_ME_CONTENT mutable
+export let ABOUT_ME_CONTENT = {
   greeting: "Hello, I'm Barkın Çeliker",
   introduction: "I am a 3rd-year Management Information Systems (Yönetim Bilişim Sistemleri - YBS) student at Yaşar University, passionate about data analysis, business intelligence, and leveraging technology to solve real-world problems. My journey in YBS has equipped me with a strong foundation in both business processes and information technology, with a particular focus on how data can drive decision-making and innovation.",
   mission: "My goal is to transform raw data into actionable insights, helping organizations understand their performance, identify opportunities, and make informed strategic choices. I am constantly exploring new tools and techniques in the data science field to enhance my analytical capabilities.",
